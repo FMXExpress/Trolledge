@@ -5,7 +5,7 @@ Object Pascal Code Editor for Windows and Mac OSX.
 - Project directory explorer
 - Triple side by side editing
 - Object Pascal code completion
-- Search In files explorer
+- Search In Files explorer
 - Image viewer
 - ZIP explorer
 - Android APK explorer
@@ -17,6 +17,14 @@ Object Pascal Code Editor for Windows and Mac OSX.
 - Text file encoding detection
 - Scriptable plugin system
 - Drag and Drop file support
+- Goto Code navigator
+- Goto Command navigator
+- Goto Line navigator
+- Goto File navigator
+- Opened File history
+- Fullscreen mode
+- Export to HTML (w/ syntax highlighting)
+- Zoom editor in/out
 
 # Syntax Highlighting
 - Object Pascal Syntax highlighting
