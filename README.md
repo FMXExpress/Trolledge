@@ -25,6 +25,9 @@ Object Pascal Code Editor for Windows and Mac OSX.
 - Fullscreen mode
 - Export to HTML (w/ syntax highlighting)
 - Zoom editor in/out
+- Gutter and Margin settings
+- Line numbers
+- Show active line
 
 # Syntax Highlighting
 - Object Pascal Syntax highlighting
