@@ -6,7 +6,7 @@ Object Pascal Code Editor for Windows and Mac OSX.
 - Triple side by side editing
 - Object Pascal code completion
 - Search In Files explorer
-- Image viewer
+- Image viewer (.jpeg;.jpg;.jpe;.tif;.tiff;.png;.bmp;.ico;.gif)
 - ZIP explorer
 - Android APK explorer
 - IOS IPA explorer
