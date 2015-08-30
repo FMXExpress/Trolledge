@@ -1,8 +1,32 @@
-# Trolledge
+# Trolledge v0.50
 Object Pascal Code Editor for Windows and Mac OSX.
 
+# Features
+- Project directory explorer
+- Triple side by side editing
+- Object Pascal code completion
+- Search In files explorer
+- Image viewer
+- ZIP explorer
+- Android APK explorer
+- IOS IPA explorer
+- Hex viewer
+- Auto open DFM/FMX/LFM files with Pascal file
+- 64bit support for large files
+- Light and Dark themes
+- Text file encoding detection
+- Scriptable plugin system
+- Drag and Drop file support
 
-
+# Syntax Highlighting
+- Object Pascal Syntax highlighting
+- C# Syntax highlighting
+- C++ Syntax highlighting
+- CSS Syntax highlighting
+- XML Syntax highlighting
+- HTML Syntax highlighting
+- JavaScript Syntax highlighting
+- SQL Syntax highlighting
 
 # BSD License
 
