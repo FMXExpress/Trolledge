@@ -1,0 +1,250 @@
+object MemoFrame: TMemoFrame
+  Size.Width = 672.000000000000000000
+  Size.Height = 502.000000000000000000
+  Size.PlatformDefault = False
+  OnDragEnter = FrameDragEnter
+  OnDragOver = FrameDragOver
+  OnDragDrop = FrameDragDrop
+  object ImageViewer1: TImageViewer
+    Align = Client
+    Size.Width = 672.000000000000000000
+    Size.Height = 469.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 0
+    Viewport.Width = 668.000000000000000000
+    Viewport.Height = 465.000000000000000000
+  end
+  object pnlMemoFind: TPanel
+    Align = Bottom
+    Position.Y = 476.000000000000000000
+    Size.Width = 672.000000000000000000
+    Size.Height = 26.000000000000000000
+    Size.PlatformDefault = False
+    Visible = False
+    TabOrder = 1
+    object edFindText: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Client
+      TabOrder = 1
+      Size.Width = 507.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+    end
+    object lbFindText: TLabel
+      Align = Left
+      Margins.Left = 4.000000000000000000
+      Position.X = 4.000000000000000000
+      Size.Width = 53.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'Find text:'
+    end
+    object btnFindText: TButton
+      Align = Right
+      Position.X = 564.000000000000000000
+      Size.Width = 80.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 3
+    end
+    object btnCloseFindBar: TButton
+      Align = Right
+      Position.X = 644.000000000000000000
+      Size.Width = 28.000000000000000000
+      Size.Height = 26.000000000000000000
+      Size.PlatformDefault = False
+      StyleLookup = 'cleareditbutton'
+      TabOrder = 0
+    end
+  end
+  object pnlMemoStatus: TPanel
+    Align = Top
+    Size.Width = 672.000000000000000000
+    Size.Height = 33.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object lbFileName: TLabel
+      Align = Left
+      AutoSize = True
+      StyledSettings = [Family, Size, FontColor]
+      Margins.Left = 8.000000000000000000
+      Position.X = 8.000000000000000000
+      Size.Width = 22.000000000000000000
+      Size.Height = 33.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.WordWrap = False
+      Text = 'File'
+    end
+    object lbFilePath: TLabel
+      Align = Client
+      Size.Width = 576.000000000000000000
+      Size.Height = 33.000000000000000000
+      Size.PlatformDefault = False
+      TextSettings.WordWrap = False
+    end
+    object btnCloseFrame: TSpeedButton
+      Align = Right
+      Position.X = 639.000000000000000000
+      Size.Width = 33.000000000000000000
+      Size.Height = 33.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'X'
+      object Image1: TImage
+        Tag = 13
+        MultiResBitmap = <
+          item
+            Width = 36
+            Height = 36
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000024000000240806000000E10098
+              98000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              01D0494441545847ED964152C2301486DBBAE5048ADE41584119C70DF710053D
+              00B0E600C0D28523A387C00388CEC0CE437806D8B020BE1F5E9C0C2669D2A21B
+              F3CD74D23F40DE4721AF8D0281404043B7DBBDA021DE257F068341C26B6492F0
+              68A4D7EB75922479EDF7FB0F14BDA520B35AAD265883A46E78DA88B500BE1516
+              A253F9BEC7E1707847A3D8453B52268EE3164F89CD6673391E8FDF38FFE08847
+              2D8BC5E2B35EAF9769C10A4F55299FCCE7F317CE46343260321A8DEEF95C8B55
+              08A03824A414C62C29838CD3D5CD1402289EA669994EBFA590697E8AAC524406
+              3809011457A530EE4B159501CE4200C56BB5DA29153CE7A90A32FDD7A6879001
+              797A4B4CBB0FDBF89A73443BE7894440211990D987348852A9D411423C738E20
+              770819E0F5934966B39968369BD3F57A7D4622F2E793E4960179AED0AF92EB0A
+              19FEC0922AEDBE63B40ACE5E780B9976131D1F7454B7A9809497906D6BA3B8DA
+              D109E7DB8C8AB3904B9FD997C2E82BE524E4D3F4505CEDE890DAEFE83632857C
+              642428AE4A617495B20AE59191A0B8E936C3598BB50F2D97CB062D78C51138C9
+              30821EC4DAB8AD7046476FD1936783A316AB103FD9DDD201011F19897A9BC1E7
+              DAB4C6FBF69522FCE5437E2010F86744D1176A2423FF698C4EDA000000004945
+              4E44AE426082}
+          end>
+        Align = Client
+        HitTest = False
+        Margins.Left = 4.000000000000000000
+        Margins.Top = 4.000000000000000000
+        Margins.Right = 4.000000000000000000
+        Margins.Bottom = 4.000000000000000000
+        Size.Width = 25.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+    end
+    object btnSplitEditor: TSpeedButton
+      Align = Right
+      Position.X = 606.000000000000000000
+      Size.Width = 33.000000000000000000
+      Size.Height = 33.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'btnSplitEditor'
+      object Image2: TImage
+        Tag = 12
+        MultiResBitmap = <
+          item
+            Width = 36
+            Height = 36
+            PNG = {
+              89504E470D0A1A0A0000000D4948445200000024000000240806000000E10098
+              98000000017352474200AECE1CE90000000467414D410000B18F0BFC61050000
+              0086494441545847EDD1410E80200C0440F4CF7D451FAD21A1090748DB05120E
+              3B178CBA4BD14244447490887CED322C9B79DAEAEA8B5535944332E962E36D80
+              642AF705B4B842B2474ED9CB764C1FEC18C664BA8637770E63A29D6F5BAF313D
+              F555BFCCEC182ADBE196AF0C85648F15A307090D54F51B205F289A49199DDA83
+              64888888C24AF901B6B4618682DCAB120000000049454E44AE426082}
+          end>
+        Align = Client
+        HitTest = False
+        Margins.Left = 4.000000000000000000
+        Margins.Top = 4.000000000000000000
+        Margins.Right = 4.000000000000000000
+        Margins.Bottom = 4.000000000000000000
+        Size.Width = 25.000000000000000000
+        Size.Height = 25.000000000000000000
+        Size.PlatformDefault = False
+      end
+    end
+  end
+  object TMSFMXMemo1: TTMSFMXMemo
+    Align = Client
+    Cursor = crIBeam
+    DisableFocusEffect = False
+    TabOrder = 3
+    OnApplyStyleLookup = TMSFMXMemo1ApplyStyleLookup
+    OnDragEnter = TMSFMXMemo1DragEnter
+    OnDragOver = TMSFMXMemo1DragOver
+    OnDragDrop = TMSFMXMemo1DragDrop
+    OnClick = TMSFMXMemo1Click
+    Size.Width = 672.000000000000000000
+    Size.Height = 469.000000000000000000
+    Size.PlatformDefault = False
+    AdaptToStyle = True
+    ActiveLineSettings.ShowActiveLine = False
+    ActiveLineSettings.ShowActiveLineIndicator = False
+    ActiveLineSettings.ActiveLineAtCursor = True
+    AutoCompletion.StartToken = '.,('
+    AutoCompletion.Width = 400
+    CaseSensitive = False
+    Font.Family = 'Courier New'
+    Gutter.Font.Family = 'Courier New'
+    KeyboardType = Default
+    Lines.Strings = (
+      '')
+    ReadOnly = False
+    TabSize = 4
+    TrimTrailingSpaces = False
+    UseStyler = True
+    UrlAware = False
+    Version = '1.5.2.2'
+    WantTab = True
+    OnCursorChange = TMSFMXMemo1CursorChange
+  end
+  object pnlGoTo: TPanel
+    Align = Contents
+    Margins.Left = 50.000000000000000000
+    Margins.Top = 32.000000000000000000
+    Margins.Right = 50.000000000000000000
+    Margins.Bottom = 200.000000000000000000
+    Size.Width = 572.000000000000000000
+    Size.Height = 270.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 4
+    object lbGoToHint: TLabel
+      Align = Top
+      Size.Width = 572.000000000000000000
+      Size.Height = 17.000000000000000000
+      Size.PlatformDefault = False
+      Text = 'lbGoToHint'
+    end
+    object ListView1: TListView
+      ItemAppearanceClassName = 'TImageListItemBottomDetailAppearance'
+      ItemEditAppearanceClassName = 'TImageListItemBottomDetailShowCheckAppearance'
+      HeaderAppearanceClassName = 'TListHeaderObjects'
+      FooterAppearanceClassName = 'TListHeaderObjects'
+      Align = Client
+      Margins.Top = 4.000000000000000000
+      Size.Width = 572.000000000000000000
+      Size.Height = 227.000000000000000000
+      Size.PlatformDefault = False
+      TabOrder = 1
+      OnKeyDown = ListView1KeyDown
+      OnDblClick = ListView1DblClick
+    end
+    object edGoToFilter: TEdit
+      Touch.InteractiveGestures = [LongTap, DoubleTap]
+      Align = Top
+      TabOrder = 2
+      Position.Y = 17.000000000000000000
+      Size.Width = 572.000000000000000000
+      Size.Height = 22.000000000000000000
+      Size.PlatformDefault = False
+      OnTyping = edGoToFilterTyping
+      OnKeyDown = edGoToFilterKeyDown
+    end
+  end
+  object treeZipView: TTreeView
+    Align = Client
+    Size.Width = 672.000000000000000000
+    Size.Height = 443.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 5
+    Visible = False
+    Viewport.Width = 668.000000000000000000
+    Viewport.Height = 439.000000000000000000
+  end
+end

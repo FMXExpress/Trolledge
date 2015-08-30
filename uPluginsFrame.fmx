@@ -1,0 +1,36 @@
+object PluginsFrame: TPluginsFrame
+  Align = Client
+  Size.Width = 132.000000000000000000
+  Size.Height = 426.000000000000000000
+  Size.PlatformDefault = False
+  object lvPlugins: TListView
+    ItemAppearanceClassName = 'TImageListItemAppearance'
+    ItemEditAppearanceClassName = 'TImageListItemDeleteAppearance'
+    HeaderAppearanceClassName = 'TListHeaderObjects'
+    FooterAppearanceClassName = 'TListHeaderObjects'
+    Align = Client
+    Size.Width = 132.000000000000000000
+    Size.Height = 402.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    ItemAppearance.ItemHeight = 100
+    ItemAppearance.ItemEditHeight = 100
+    ItemAppearanceObjects.ItemObjects.Image.ScalingMode = Stretch
+    ItemAppearanceObjects.ItemObjects.Image.Width = 80.000000000000000000
+    ItemAppearanceObjects.ItemObjects.Image.Height = 80.000000000000000000
+    OnChange = lvPluginsChange
+  end
+  object MenuBar1: TMenuBar
+    Size.Width = 132.000000000000000000
+    Size.Height = 24.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 2
+    object MenuItem1: TMenuItem
+      Text = 'Preferences'
+      object MenuItem2: TMenuItem
+        Locked = True
+        Text = 'Add Plugin'
+      end
+    end
+  end
+end

@@ -1,0 +1,464 @@
+object OptionsFrame: TOptionsFrame
+  Size.Width = 642.000000000000000000
+  Size.Height = 517.000000000000000000
+  Size.PlatformDefault = False
+  object BGRect: TRectangle
+    Align = Contents
+    Fill.Color = xFF161616
+    Opacity = 0.899999976158142100
+    Size.Width = 642.000000000000000000
+    Size.Height = 517.000000000000000000
+    Size.PlatformDefault = False
+    Stroke.Kind = None
+  end
+  object ColorAnimation1: TColorAnimation
+    Duration = 0.200000002980232200
+    StartValue = claWhite
+    StopValue = claWhite
+  end
+  object GPL: TGridPanelLayout
+    Align = Client
+    Size.Width = 642.000000000000000000
+    Size.Height = 517.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 1
+    ColumnCollection = <
+      item
+        Value = 5.024789827801948000
+      end
+      item
+        Value = 89.966612727399690000
+      end
+      item
+        Value = 5.008597444798357000
+      end>
+    ControlCollection = <
+      item
+        Column = 1
+        Control = MainLayout
+        Row = 1
+      end>
+    RowCollection = <
+      item
+        Value = 5.114220340399999000
+      end
+      item
+        Value = 89.882333977485930000
+      end
+      item
+        Value = 5.003445682114076000
+      end>
+    object MainLayout: TLayout
+      Align = Client
+      Size.Width = 577.585632324218800000
+      Size.Height = 464.691680908203100000
+      Size.PlatformDefault = False
+      TabOrder = 0
+      object TabControl1: TTabControl
+        Align = Client
+        Anchors = []
+        Size.Width = 577.585632324218800000
+        Size.Height = 415.691680908203100000
+        Size.PlatformDefault = False
+        TabIndex = 0
+        TabOrder = 0
+        TabPosition = PlatformDefault
+        object tbiGeneral: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = True
+          Size.Width = 60.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'General'
+          object GroupBox4: TGroupBox
+            Align = Bottom
+            Margins.Left = 8.000000000000000000
+            Margins.Right = 8.000000000000000000
+            Margins.Bottom = 8.000000000000000000
+            Position.X = 8.000000000000000000
+            Position.Y = 249.691680908203100000
+            Size.Width = 561.585510253906300000
+            Size.Height = 134.000000000000000000
+            Size.PlatformDefault = False
+            Text = ' Gutter and Margin '
+            TabOrder = 1
+            object chkGutterVisible: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 145.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'Visible Gutter'
+              OnClick = chkGutterVisibleClick
+            end
+            object spinGutterWidth: TSpinBox
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              TabOrder = 1
+              Cursor = crIBeam
+              Min = 10.000000000000000000
+              Value = 50.000000000000000000
+              Position.X = 128.000000000000000000
+              Position.Y = 46.000000000000000000
+              Size.Width = 92.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+            end
+            object Label2: TLabel
+              Position.X = 32.000000000000000000
+              Position.Y = 48.000000000000000000
+              Size.Width = 97.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Gutter Width'
+            end
+            object chkGutterLineNumbers: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 72.000000000000000000
+              Size.Width = 145.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              Text = 'Show Line Numbers'
+            end
+            object chkGutterZeroes: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 96.000000000000000000
+              Size.Width = 145.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 4
+              Text = 'Show Leading Zeros'
+            end
+            object chkMemoRightMargin: TCheckBox
+              Position.X = 320.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 177.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 5
+              Text = 'Visible Right Margin'
+              OnClick = chkMemoRightMarginClick
+            end
+            object Label3: TLabel
+              Position.X = 320.000000000000000000
+              Position.Y = 48.000000000000000000
+              Size.Width = 152.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Right Margin Column'
+            end
+            object spinMemoRightColumn: TSpinBox
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              TabOrder = 7
+              Cursor = crIBeam
+              Min = 10.000000000000000000
+              Max = 200.000000000000000000
+              Value = 80.000000000000000000
+              Position.X = 480.000000000000000000
+              Position.Y = 46.000000000000000000
+              Size.Width = 92.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+            end
+          end
+          object GroupBox5: TGroupBox
+            Align = Left
+            Margins.Left = 8.000000000000000000
+            Margins.Top = 4.000000000000000000
+            Position.X = 8.000000000000000000
+            Position.Y = 4.000000000000000000
+            Size.Width = 289.000000000000000000
+            Size.Height = 245.691680908203100000
+            Size.PlatformDefault = False
+            Text = ' Tab Settings '
+            TabOrder = 2
+            object chkMemoTabStop: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 113.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'Tab Stop'
+            end
+            object Label4: TLabel
+              Position.X = 48.000000000000000000
+              Position.Y = 48.000000000000000000
+              Size.Width = 57.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Tab Size'
+            end
+            object SpinMemoTabSize: TSpinBox
+              Touch.InteractiveGestures = [LongTap, DoubleTap]
+              TabOrder = 2
+              Cursor = crIBeam
+              Min = 1.000000000000000000
+              Max = 16.000000000000000000
+              Value = 4.000000000000000000
+              Position.X = 128.000000000000000000
+              Position.Y = 48.000000000000000000
+              Size.Width = 92.000000000000000000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+            end
+            object chkMemoSmartTabs: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 72.000000000000000000
+              Size.Width = 105.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 3
+              Text = 'Smart Tabs'
+            end
+            object chkMemoWantTab: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 96.000000000000000000
+              Size.Width = 105.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 4
+              Text = 'Want Tab'
+            end
+          end
+          object GroupBox3: TGroupBox
+            Align = Client
+            Margins.Left = 8.000000000000000000
+            Margins.Top = 4.000000000000000000
+            Margins.Right = 8.000000000000000000
+            Size.Width = 264.585632324218800000
+            Size.Height = 245.691680908203100000
+            Size.PlatformDefault = False
+            Text = ' Miscellaneous '
+            TabOrder = 0
+            object chkMemoActiveLine: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 225.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 0
+              Text = 'Show Active Line'
+            end
+            object chkMemoActiveLineIndicator: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 48.000000000000000000
+              Size.Width = 233.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              Text = 'Show Active Line Indicator'
+            end
+            object chkAutoOpen: TCheckBox
+              Position.X = 16.000000000000000000
+              Position.Y = 72.000000000000000000
+              Size.Width = 233.000000000000000000
+              Size.Height = 19.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              Text = 'Auto Open DFM/FMX/LFM'
+            end
+          end
+        end
+        object tbiPaths: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = False
+          Size.Width = 49.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'Paths'
+          object Label5: TLabel
+            Position.X = 16.000000000000000000
+            Position.Y = 8.000000000000000000
+            Text = 'Search Path:'
+          end
+          object edSearchPath: TEdit
+            Touch.InteractiveGestures = [LongTap, DoubleTap]
+            Anchors = [akLeft, akTop, akRight]
+            TabOrder = 1
+            Position.X = 16.000000000000000000
+            Position.Y = 32.000000000000000000
+            Size.Width = 499.585510253906300000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+          end
+          object btnSearchPath: TButton
+            Anchors = [akTop, akRight]
+            Position.X = 522.585510253906300000
+            Position.Y = 32.000000000000000000
+            Size.Width = 40.000000000000000000
+            Size.Height = 22.000000000000000000
+            Size.PlatformDefault = False
+            TabOrder = 2
+            Text = '...'
+            OnClick = btnSearchPathClick
+          end
+        end
+        object tbiHighlighting: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = False
+          Size.Width = 85.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'Highlighting'
+          object GroupBox1: TGroupBox
+            Align = Top
+            Margins.Left = 8.000000000000000000
+            Margins.Right = 8.000000000000000000
+            Position.X = 8.000000000000000000
+            Size.Width = 561.585510253906300000
+            Size.Height = 161.000000000000000000
+            Size.PlatformDefault = False
+            Text = ' Syntax example '
+            TabOrder = 0
+            object TMSFMXMemo1: TTMSFMXMemo
+              Align = Client
+              Cursor = crIBeam
+              DisableFocusEffect = False
+              Margins.Left = 12.000000000000000000
+              Margins.Top = 18.000000000000000000
+              Margins.Right = 12.000000000000000000
+              Margins.Bottom = 12.000000000000000000
+              StyleLookup = 'TMSFMXMemo1Style1'
+              TabOrder = 1
+              Size.Width = 537.585510253906300000
+              Size.Height = 131.000000000000000000
+              Size.PlatformDefault = False
+              ActiveLineSettings.ShowActiveLine = False
+              ActiveLineSettings.ShowActiveLineIndicator = False
+              ActiveLineSettings.ActiveLineAtCursor = True
+              AutoCompletion.StartToken = '.'
+              CaseSensitive = False
+              Font.Family = 'Courier New'
+              FontColor = claWhitesmoke
+              Gutter.Font.Family = 'Courier New'
+              Gutter.FontColor = claDarkgray
+              KeyboardType = Default
+              Lines.Strings = (
+                'procedure ShowSyntax;'
+                'var'
+                '  I: Integer;'
+                'begin'
+                '  // Simple for loop'
+                '  for I := 0 to 9 do'
+                '    TMSFMXMemo1.Lines.Add('#39'Line: '#39' + I.ToString);'
+                'end;')
+              ReadOnly = False
+              TabSize = 4
+              TrimTrailingSpaces = False
+              UseStyler = True
+              UrlAware = False
+              Version = '1.5.2.2'
+              WantTab = True
+            end
+          end
+          object GroupBox2: TGroupBox
+            Align = Client
+            Margins.Left = 8.000000000000000000
+            Margins.Right = 8.000000000000000000
+            Margins.Bottom = 8.000000000000000000
+            Size.Width = 561.585632324218800000
+            Size.Height = 222.691680908203100000
+            Size.PlatformDefault = False
+            Text = ' Syntax settings '
+            TabOrder = 1
+            object Label1: TLabel
+              Position.X = 8.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 113.000000000000000000
+              Size.Height = 17.000000000000000000
+              Size.PlatformDefault = False
+              Text = 'Select Syntax Styler:'
+            end
+            object cbStylesList: TComboBox
+              Anchors = [akLeft, akTop, akRight]
+              Position.X = 120.000000000000000000
+              Position.Y = 24.000000000000000000
+              Size.Width = 425.585510253906300000
+              Size.Height = 22.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 1
+              OnChange = cbStylesListChange
+            end
+            object ScrollBox1: TScrollBox
+              Align = Client
+              Margins.Left = 8.000000000000000000
+              Margins.Top = 52.000000000000000000
+              Margins.Right = 8.000000000000000000
+              Margins.Bottom = 8.000000000000000000
+              Size.Width = 545.585632324218800000
+              Size.Height = 162.691680908203100000
+              Size.PlatformDefault = False
+              StyleLookup = 'ScrollBox1Style1'
+              TabOrder = 2
+              Viewport.Width = 545.600000000000000000
+              Viewport.Height = 166.700000000000000000
+            end
+          end
+        end
+        object tbiPlugins: TTabItem
+          CustomIcon = <
+            item
+            end>
+          IsSelected = False
+          Size.Width = 58.000000000000000000
+          Size.Height = 24.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'Plugins'
+        end
+      end
+      object BottomLayout: TLayout
+        Align = Bottom
+        Margins.Top = 4.000000000000000000
+        Margins.Bottom = 4.000000000000000000
+        Position.Y = 423.691680908203100000
+        Size.Width = 577.585632324218800000
+        Size.Height = 37.000000000000000000
+        Size.PlatformDefault = False
+        TabOrder = 1
+        object Button1: TButton
+          Align = Right
+          ModalResult = 1
+          Position.X = 409.585510253906300000
+          Size.Width = 80.000000000000000000
+          Size.Height = 37.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 0
+          Text = 'OK'
+        end
+        object Button2: TButton
+          Align = Right
+          ModalResult = 2
+          Margins.Left = 8.000000000000000000
+          Position.X = 497.585510253906300000
+          Size.Width = 80.000000000000000000
+          Size.Height = 37.000000000000000000
+          Size.PlatformDefault = False
+          TabOrder = 1
+          Text = 'Cancel'
+        end
+      end
+      object GreenRect: TRectangle
+        Align = Bottom
+        Fill.Color = xFF09FF77
+        HitTest = False
+        Position.Y = 415.691680908203100000
+        Size.Width = 577.585632324218800000
+        Size.Height = 4.000000000000000000
+        Size.PlatformDefault = False
+        Stroke.Kind = None
+      end
+    end
+  end
+end
