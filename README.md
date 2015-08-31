@@ -1,5 +1,5 @@
 # Trolledge v0.50
-Object Pascal Code Editor for Windows and Mac OSX.
+Object Pascal Code Editor for Windows and Mac OSX. Compiles in Delphi XE8 Firemonkey.
 
 # Features
 - Project directory explorer
