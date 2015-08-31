@@ -74,8 +74,8 @@ https://www.tmssoftware.com/site/tmsfmxpack.asp
 Copyright (c) 2006-2014 Alexander Baranovsky
 http://www.paxcompiler.com/
 
-# Uses OpenViewUrl:
-Copyright (C) Jim McKeeth
+# Uses OpenViewUrl/uUtils:
+Jim McKeeth & Malcom Groves
 http://delphi.org/2013/10/sending-a-url-to-another-app-on-android-and-ios-with-delphi-xe5/
 
 # Uses DuckDuckDelphi:
