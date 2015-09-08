@@ -7,7 +7,8 @@ uses
   FMX.Types, FMX.Graphics, FMX.Controls, FMX.Forms, FMX.Dialogs, FMX.StdCtrls,
   FMX.Layouts, FMX.ExtCtrls, FMX.Edit, FMX.TMSBaseControl, FMX.TMSMemo,
   FMX.Controls.Presentation, FMX.Objects, FMX.ListView.Types, FMX.ListView,
-  FMX.TMSWebBrowser, FMX.TreeView;
+  FMX.TMSWebBrowser, FMX.TreeView, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base;
 
 type
   TMemoFrame = class(TFrame)
@@ -172,7 +173,7 @@ end;
 procedure TMemoFrame.TMSFMXMemo1Click(Sender: TObject);
 begin
   if pnlGoTo.Visible then frmMain.GoToListHide(Self);
-  frmMain.ShowFileName(FPredFileName);
+  //frmMain.ShowFileName(FPredFileName);
 end;
 
 procedure TMemoFrame.TMSFMXMemo1CursorChange(Sender: TObject);

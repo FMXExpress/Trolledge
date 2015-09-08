@@ -2,37 +2,37 @@
 <BorlandProject>
 	<BT_BuildType>Debug</BT_BuildType>
 	<Transactions>
-    <Transaction>2015/08/22 17:30:59.000.087,C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\uSyntaxColoring.pas=</Transaction>
-    <Transaction>2015/08/22 17:31:05.000.558,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\uOptions.pas</Transaction>
-    <Transaction>2015/08/27 17:18:32.000.956,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\JsonDataObjects.pas</Transaction>
-    <Transaction>2015/08/27 17:18:32.000.990,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\SvCollections.Tries.pas</Transaction>
-    <Transaction>2015/08/27 17:19:10.000.777,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Consts.pas</Transaction>
-    <Transaction>2015/08/27 17:19:10.000.747,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Classes.pas</Transaction>
-    <Transaction>2015/08/27 17:19:10.000.810,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.pas</Transaction>
-    <Transaction>2015/08/27 17:19:10.000.841,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Writer.pas</Transaction>
-    <Transaction>2015/08/27 17:19:21.000.772,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.Lexer.Types.pas</Transaction>
+    <Transaction>2015/08/22 17:30:58.999.087,C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\uSyntaxColoring.pas=</Transaction>
+    <Transaction>2015/08/22 17:31:04.999.558,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\uOptions.pas</Transaction>
+    <Transaction>2015/08/27 17:18:31.999.956,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\JsonDataObjects.pas</Transaction>
+    <Transaction>2015/08/27 17:18:31.999.990,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\SvCollections.Tries.pas</Transaction>
+    <Transaction>2015/08/27 17:19:09.999.810,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.pas</Transaction>
+    <Transaction>2015/08/27 17:19:09.999.747,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Classes.pas</Transaction>
+    <Transaction>2015/08/27 17:19:09.999.841,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Writer.pas</Transaction>
+    <Transaction>2015/08/27 17:19:09.999.777,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\DelphiAST.Consts.pas</Transaction>
+    <Transaction>2015/08/27 17:19:21.000.741,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.Lexer.pas</Transaction>
     <Transaction>2015/08/27 17:19:21.000.809,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.pas</Transaction>
     <Transaction>2015/08/27 17:19:21.000.860,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.Types.pas</Transaction>
-    <Transaction>2015/08/27 17:19:21.000.741,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.Lexer.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.466,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\ODictionary.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.764,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlDOMVendor.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.576,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OJSON.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.727,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlCSeq.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.968,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlRTTISerialize.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.886,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlPSeq.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.433,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OBufferedStreams.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.850,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlPDOM.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.501,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OEncoding.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.929,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlReadWrite.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.651,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OWideSupp.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.800,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlLng.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.542,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OHashedStrings.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.691,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlCDOM.pas</Transaction>
-    <Transaction>2015/08/27 17:20:52.000.613,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OTextReadWrite.pas</Transaction>
-    <Transaction>2015/08/27 17:20:53.000.086,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlUtils.pas</Transaction>
+    <Transaction>2015/08/27 17:19:21.000.772,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\AST\SimpleParser\SimpleParser.Lexer.Types.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.850,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlPDOM.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.764,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlDOMVendor.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.886,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlPSeq.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.501,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OEncoding.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.651,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OWideSupp.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.800,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlLng.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.727,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlCSeq.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.691,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlCDOM.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.542,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OHashedStrings.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.929,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlReadWrite.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.613,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OTextReadWrite.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.968,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlRTTISerialize.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.576,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OJSON.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.433,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OBufferedStreams.pas</Transaction>
+    <Transaction>2015/08/27 17:20:51.999.466,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\ODictionary.pas</Transaction>
     <Transaction>2015/08/27 17:20:53.000.006,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlSAX.pas</Transaction>
-    <Transaction>2015/08/27 17:20:53.000.129,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlXPath.pas</Transaction>
+    <Transaction>2015/08/27 17:20:53.000.086,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlUtils.pas</Transaction>
     <Transaction>2015/08/27 17:20:53.000.045,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlSerialize.pas</Transaction>
+    <Transaction>2015/08/27 17:20:53.000.129,=C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trolledge_Editor8\Source\OXML\units\OXmlXPath.pas</Transaction>
   </Transactions>
 	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="android-support-v4.dex.jar"/>
@@ -111,4 +111,8 @@
     <File Path="uWorkFiles.pas"/>
     <File Path="uZipView.pas"/>
   </ProjectSortOrder>
+	<ActiveMobileDevice>
+		<NoProfile Android="077b7f1d"/>
+		<P192.168.1.51 iOSSimulator="iPhone5"/>
+	</ActiveMobileDevice>
 </BorlandProject>

@@ -36,16 +36,21 @@ implementation
 { TLifeThread<T> }
 
 procedure TLifeThread<T>.AddTask(const ATasks: TArray<T>);
-var
-    i : integer;
-    LValue : T;
 begin
-    if Terminated then
-        Exit;
-    for LValue in ATasks do
-        if not FTasks.Contains(LValue) and not FSuccessTasks.Contains(LValue) and
-            not FFailedTasks.Contains(LValue) then
-            FTasks.Add(LValue);
+    TThread.Synchronize(
+        nil,
+        procedure
+        var
+            LValue : T;
+        begin
+            if Terminated then
+                Exit;
+            for LValue in ATasks do
+                if not FTasks.Contains(LValue) and not FSuccessTasks.Contains(LValue) and
+                    not FFailedTasks.Contains(LValue) then
+                    FTasks.Add(LValue);
+        end
+    );
     DoStart;
 end;
 
@@ -82,14 +87,21 @@ procedure TLifeThread<T>.DoOnExecute(const AValue : T);
 var
     IsExecuted : Boolean;
 begin
-    if Terminated then
-        exit;
-    IsExecuted := Assigned(FOnExecute)and FOnExecute(AValue);
-    if IsExecuted then
-        FSuccessTasks.Add(AValue)
-    else
-        FFailedTasks.Add(AValue);
-    FTasks.Remove(AValue);
+    Assert(not Terminated);
+    IsExecuted := not Terminated and Assigned(FOnExecute)and FOnExecute(AValue);
+    TThread.Synchronize(
+        nil,
+        procedure
+        begin
+            if Terminated then
+                Exit;
+            if IsExecuted then
+                FSuccessTasks.Add(AValue)
+            else
+                FFailedTasks.Add(AValue);
+            FTasks.Remove(AValue);
+        end
+    );
     DoOnExecuteStep(AValue, IsExecuted);
 end;
 
@@ -118,12 +130,11 @@ end;
 procedure TLifeThread<T>.DoStop;
 begin
     if Terminated then
-        exit;
+        Exit;
     if self.Started and (FTasks.Count < 1) then
     begin
-        //Self.Suspended := True;
-        self.Sleep(1000);
         DoOnPause;
+        self.Sleep(1000);
     end;
 end;
 
@@ -137,7 +148,10 @@ begin
     begin
         LTasks := FTasks.ToArray;
         for LValue in LTasks do
-            DoOnExecute(LValue);
+            if not Terminated then
+                DoOnExecute(LValue)
+            else
+                Break;
         DoStop;
     end;
 end;
@@ -146,9 +160,16 @@ procedure TLifeThread<T>.ExecuteFailedTask;
 var
     LTasks : TArray<T>;
 begin
-    LTasks := FFailedTasks.ToArray;
-    FFailedTasks.Clear;
-    Self.AddTask(LTasks);
+    TThread.Synchronize(
+        nil,
+        procedure
+        begin
+            if Terminated then
+                Exit;
+            LTasks := FFailedTasks.ToArray;
+            FFailedTasks.Clear;
+            Self.AddTask(LTasks);
+        end);
 end;
 
 end.

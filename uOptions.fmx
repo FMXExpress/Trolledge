@@ -68,19 +68,21 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = True
-          Size.Width = 60.000000000000000000
-          Size.Height = 24.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
+          StyleLookup = ''
           TabOrder = 0
           Text = 'General'
+          ExplicitSize.cx = 60.000000000000000000
+          ExplicitSize.cy = 24.000000000000000000
           object GroupBox4: TGroupBox
             Align = Bottom
             Margins.Left = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
             Position.X = 8.000000000000000000
-            Position.Y = 249.691680908203100000
-            Size.Width = 561.585510253906300000
+            Position.Y = 268.691680908203100000
+            Size.Width = 561.585632324218800000
             Size.Height = 134.000000000000000000
             Size.PlatformDefault = False
             Text = ' Gutter and Margin '
@@ -172,7 +174,7 @@ object OptionsFrame: TOptionsFrame
             Position.X = 8.000000000000000000
             Position.Y = 4.000000000000000000
             Size.Width = 289.000000000000000000
-            Size.Height = 245.691680908203100000
+            Size.Height = 264.691680908203100000
             Size.PlatformDefault = False
             Text = ' Tab Settings '
             TabOrder = 2
@@ -231,7 +233,7 @@ object OptionsFrame: TOptionsFrame
             Margins.Top = 4.000000000000000000
             Margins.Right = 8.000000000000000000
             Size.Width = 264.585632324218800000
-            Size.Height = 245.691680908203100000
+            Size.Height = 264.691680908203100000
             Size.PlatformDefault = False
             Text = ' Miscellaneous '
             TabOrder = 0
@@ -269,11 +271,13 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 49.000000000000000000
-          Size.Height = 24.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
+          StyleLookup = ''
           TabOrder = 0
           Text = 'Paths'
+          ExplicitSize.cx = 49.000000000000000000
+          ExplicitSize.cy = 24.000000000000000000
           object Label5: TLabel
             Position.X = 16.000000000000000000
             Position.Y = 8.000000000000000000
@@ -285,13 +289,13 @@ object OptionsFrame: TOptionsFrame
             TabOrder = 1
             Position.X = 16.000000000000000000
             Position.Y = 32.000000000000000000
-            Size.Width = 499.585510253906300000
+            Size.Width = 1027.171142578125000000
             Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
           end
           object btnSearchPath: TButton
             Anchors = [akTop, akRight]
-            Position.X = 522.585510253906300000
+            Position.X = 1050.171142578125000000
             Position.Y = 32.000000000000000000
             Size.Width = 40.000000000000000000
             Size.Height = 22.000000000000000000
@@ -306,17 +310,19 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 85.000000000000000000
-          Size.Height = 24.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
+          StyleLookup = ''
           TabOrder = 0
           Text = 'Highlighting'
+          ExplicitSize.cx = 85.000000000000000000
+          ExplicitSize.cy = 24.000000000000000000
           object GroupBox1: TGroupBox
             Align = Top
             Margins.Left = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Position.X = 8.000000000000000000
-            Size.Width = 561.585510253906300000
+            Size.Width = 34.000000000000000000
             Size.Height = 161.000000000000000000
             Size.PlatformDefault = False
             Text = ' Syntax example '
@@ -331,7 +337,7 @@ object OptionsFrame: TOptionsFrame
               Margins.Bottom = 12.000000000000000000
               StyleLookup = 'TMSFMXMemo1Style1'
               TabOrder = 1
-              Size.Width = 537.585510253906300000
+              Size.Width = 10.000000000000000000
               Size.Height = 131.000000000000000000
               Size.PlatformDefault = False
               ActiveLineSettings.ShowActiveLine = False
@@ -358,7 +364,7 @@ object OptionsFrame: TOptionsFrame
               TrimTrailingSpaces = False
               UseStyler = True
               UrlAware = False
-              Version = '1.5.2.2'
+              Version = '1.5.2.4'
               WantTab = True
             end
           end
@@ -367,8 +373,7 @@ object OptionsFrame: TOptionsFrame
             Margins.Left = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Size.Width = 561.585632324218800000
-            Size.Height = 222.691680908203100000
+            Size.Width = 34.000000000000000000
             Size.PlatformDefault = False
             Text = ' Syntax settings '
             TabOrder = 1
@@ -384,7 +389,7 @@ object OptionsFrame: TOptionsFrame
               Anchors = [akLeft, akTop, akRight]
               Position.X = 120.000000000000000000
               Position.Y = 24.000000000000000000
-              Size.Width = 425.585510253906300000
+              Size.Width = 100.000000000000000000
               Size.Height = 22.000000000000000000
               Size.PlatformDefault = False
               TabOrder = 1
@@ -396,8 +401,7 @@ object OptionsFrame: TOptionsFrame
               Margins.Top = 52.000000000000000000
               Margins.Right = 8.000000000000000000
               Margins.Bottom = 8.000000000000000000
-              Size.Width = 545.585632324218800000
-              Size.Height = 162.691680908203100000
+              Size.Width = 18.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = 'ScrollBox1Style1'
               TabOrder = 2
@@ -411,11 +415,13 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 58.000000000000000000
-          Size.Height = 24.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
+          StyleLookup = ''
           TabOrder = 0
           Text = 'Plugins'
+          ExplicitSize.cx = 58.000000000000000000
+          ExplicitSize.cy = 24.000000000000000000
         end
       end
       object BottomLayout: TLayout

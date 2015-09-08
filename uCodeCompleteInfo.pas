@@ -5,7 +5,7 @@ uses
     System.StrUtils, System.Classes, System.SysUtils, System.Generics.Collections,
     System.Generics.Defaults, System.IOUtils, System.Types, System.Rtti, System.Threading,
     OXmlPDOM, OXmlSAX, FMX.TreeView, SvCollections.Tries, System.DateUtils,
-    uUnit, uSerializer, uHelper.SvStringTrie,
+    uUnit, uSerializer, uHelper.SvStringTrie, uConsts,
     uSerializerJDO, uSerializerJSON, uThread;
 type
     TVarType = (vtLocal, vtParam, vtClass, vtUnit, vtGlobal);
@@ -85,7 +85,8 @@ type
             AUsesType : TUsesType = TUsesType.utJson); overload;
 
         function Parse(AXml : string; AIsCurrent : Boolean = False) : Boolean;
-        function ParseFromFile(AFileName : string; APlatform: string = 'MSWINDOWS'; AIsCurrent : Boolean = False) : Boolean;
+        function ParseFromText(AText : string; AIsCurrent : Boolean = False; APlatform: string = '') : Boolean;
+        function ParseFromFile(AFileName : string; AIsCurrent : Boolean = False; APlatform: string = 'MSWINDOWS') : Boolean;
         function TryGetValue(const S: string; out AValue: TList<string>;
             AOnlyPublic : Boolean = True; AParams: Boolean = False): Boolean;
         [SvSerialize('UnitList')]
@@ -115,10 +116,10 @@ function TCodeCompleteInfo.GetPath(dirName : string) : string;
 var
     Path : string;
 begin
-    {$IFDEF MSWINDOWS}
+    {$IF DEFINED(MACOS) AND NOT DEFINED(IOS)}
       Path := ExtractFilePath(ParamStr(0));
     {$ELSE}
-      Path := System.IOUtils.TPath.GetDocumentsPath;
+      Path := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
     {$ENDIF}
     Path := Path + System.SysUtils.PathDelim;
     if not dirName.IsEmpty then
@@ -205,7 +206,14 @@ var
     i : Integer;
     LUnit : TUnit;
 begin
-    FThread.Terminate;
+    TThread.Synchronize(
+        nil,
+        procedure
+        begin
+            FThread.Terminate;
+        end
+        );
+    //FThread.WaitFor;
     FreeAndNil(FThread);
     FreeAndNil(FCurrentUnit);
     FreeAndNil(FCurrentMethod);
@@ -334,7 +342,7 @@ begin
             FSerializer.SEARCH_PATTERN, LJsonFile, dtJsonWrite);
         IsNeedParse := (dtPasWrite >  dtJsonWrite) and (IsPasFound or IsJsonFound);
         if IsNeedParse then
-            Result := ParseFromFile(LPasFile, FPlatform)
+            Result := ParseFromFile(LPasFile, False, FPlatform)
         else
             if IsJsonFound and not FindUnit(AName, temp) then
             begin
@@ -355,7 +363,8 @@ var
     LTask : ITask;
 begin
     LMissList := CreateMissUsesList(AUnit.UsesList);
-    FThread.AddTask(LMissList.ToArray);
+    if Assigned(FThread) then
+        FThread.AddTask(LMissList.ToArray);
 end;
 {------------------------------------------------------------------------------}
 procedure TCodeCompleteInfo.LoadUnit(const AFileName: string);
@@ -431,13 +440,34 @@ begin
     end;
 end;
 {------------------------------------------------------------------------------}
-function TCodeCompleteInfo.ParseFromFile(AFileName: string; APlatform: string = 'MSWINDOWS';
-  AIsCurrent: Boolean = False): Boolean;
+function TCodeCompleteInfo.ParseFromText(AText: string;
+  AIsCurrent: Boolean; APlatform: string): Boolean;
 var
     LXML : string;
     LNow : TDateTime;
     LmSecCount : integer;
 begin
+    if APlatform.IsEmpty then
+        APlatform := self.CurrentPlatform;
+    LNow := Now;
+    LXML := TSyntaxNode.ParseText(AText, APlatform);
+    LmSecCount := MilliSecondsBetween(Now, LNow);
+    FLog.Add('TSyntaxNode.Parse Time(mc) : ' + string.Parse(LmSecCount));
+    LNow := Now;
+    Result := Parse(LXML, AIsCurrent);
+    LmSecCount := MilliSecondsBetween(Now, LNow);
+    FLog.Add('Info.Parse Time(mc) : ' + string.Parse(LmSecCount));
+end;
+{------------------------------------------------------------------------------}
+function TCodeCompleteInfo.ParseFromFile(AFileName: string; 
+  AIsCurrent: Boolean = False; APlatform: string = 'MSWINDOWS'): Boolean;
+var
+    LXML : string;
+    LNow : TDateTime;
+    LmSecCount : integer;
+begin
+    if APlatform.IsEmpty then
+        APlatform := self.CurrentPlatform;
     LNow := Now;
     LXML := TSyntaxNode.ParseFile(AFileName, APlatform);
     LmSecCount := MilliSecondsBetween(Now, LNow);

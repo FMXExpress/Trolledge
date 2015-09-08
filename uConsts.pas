@@ -13,7 +13,9 @@ const
   CImageExt         = '.jpeg;.jpg;.jpe;.tif;.tiff;.png;.bmp;.ico;.gif';
   CBinaryExt        = '.exe;.bin;.dll;*.dcu;*.o';
   CZipExt           = '*.zip;*.apk;*.ipa';
+  CPascalUnitExt    = '.pas';
   CPascalFormExt    = '.dfm;.fmx;.lfm';
+  CRTLPath          = 'c:\program files (x86)\embarcadero\studio\17.0\source';
   CCaretPos         = 'Ln %d, Col %d';
   CSaveDialogText   = 'Text has been changed. Save changes?';
   CWorkFilesChanged = 'There are some unsaved WorkFiles. Save changes?';

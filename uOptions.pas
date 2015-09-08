@@ -1,3 +1,4 @@
+
 unit uOptions;
 
 interface
@@ -8,13 +9,10 @@ uses
   FMX.Layouts, FMX.ListBox, FMX.Edit,
   FMX.EditBox, FMX.SpinBox, FMX.TabControl, FMX.Controls.Presentation, FMX.Ani,
   FMX.Colors, FMX.TMSBaseControl, FMX.TMSMemo, FMX.TMSMemoStyles,
-  FMX.Objects, duck
+  FMX.Objects, uUtils, duck
   {$IFDEF MSWINDOWS}
-  ,FMX.Platform.Win, Winapi.Windows, Winapi.ShellAPI, ComObj, ShlObj, ActiveX
-  {$ENDIF MSWINDOWS}
-  {$IF DEFINED(MACOS) AND NOT DEFINED(IOS)}
-  ,Macapi.AppKit, Macapi.Foundation, Macapi.ObjectiveC
-  {$ENDIF MACOS}
+  , FMX.Platform.Win
+  {$ENDIF}
   ;
 
 const
@@ -72,7 +70,6 @@ type
   private
     { Private declarations }
     procedure ShowStylerStyles(AStylerName: string);
-    function SelectDirectory(const ATitle: string; var ADir: string): boolean;
   public
     { Public declarations }
     {$IFDEF MSWINDOWS}
@@ -92,7 +89,7 @@ procedure TOptionsFrame.btnSearchPathClick(Sender: TObject);
 var
   NewPath: string;
 begin
-  if SelectDirectory('Please select directory...', NewPath) then
+  if SelectDirectory('Please select directory...', NewPath{$IFDEF MSWINDOWS}, FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd{$ENDIF}) then
   begin
     edSearchPath.Text := NewPath;
   end;
@@ -143,117 +140,6 @@ procedure TOptionsFrame.FormShow(Sender: TObject);
 begin
   cbStylesList.ItemIndex := 0;
  // ShowStylerStyles('Pascal');
-end;
-
-{$IFDEF MSWINDOWS}
-function BI_CallBack_Proc(hwnd: HWND; uMsg: UINT; lParam: DWORD;
-  lpData: DWORD): integer; stdcall;
-var
-  PathName: array[0..MAX_PATH] of Char;
-begin
-  case uMsg of
-    BFFM_INITIALIZED:
-      SendMessage(Hwnd, BFFM_SETSELECTION, Ord(True), Integer(lpData));
-    BFFM_SELCHANGED:
-      begin
-        SHGetPathFromIDList(PItemIDList(lParam), @PathName);
-        SendMessage(hwnd, BFFM_SETSTATUSTEXT, 0, Longint(PChar(@PathName)));
-      end;
-  end;
-  Result := 0;
-end;
-{$ENDIF MSWINDOWS}
-
-function TOptionsFrame.SelectDirectory(const ATitle: string;
-  var ADir: string): boolean;
-{$IFDEF MSWINDOWS}
-var
-  hr: HRESULT;
-  FormHandle: THandle;
-  IDList: PItemIDList;
-  RootIDList: PItemIDList;
-  Malloc: IMalloc;
-  lpBuf: LPTSTR;
-  BI: TBrowseInfo;
-  sCaption: string;
-begin
-  Result := False;
-  FormHandle := FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd;
-  ADir := EmptyStr;
-  if (SHGetMalloc(Malloc) = S_OK) and (Malloc <> nil) then
-  begin
-    sCaption := ATitle;
-    FillChar(BI, SizeOf(BI), 0);
-    lpBuf := Malloc.Alloc(MAX_PATH);
-    RootIDList := nil;
-    SHGetSpecialFolderLocation(FormHandle, CSIDL_DESKTOP, RootIDList);
-    with BI do
-    begin
-      hwndOwner := FormHandle;
-      pidlRoot := RootIDList;
-      pszDisplayName := lpBuf;
-      lpszTitle := PWideChar(sCaption);
-      ulFlags := BIF_NEWDIALOGSTYLE or BIF_USENEWUI;
-      lpfn := @BI_CallBack_Proc;
-      lParam := 0;
-      iImage := 0;
-    end;
-    try
-      hr := CoInitializeEx(nil, COINIT_APARTMENTTHREADED);
-      if (hr = S_OK) or (hr = S_FALSE) then
-      begin
-        IDList := SHBrowseForFolder(BI);
-        Result := IDList <> nil;
-        if Result  then
-        begin
-          SHGetPathFromIDList(IDList, lpBuf);
-          ADir := StrPas(lpBuf);
-          Malloc.Free(RootIDList);
-          RootIDList := nil;
-          Malloc.Free(IDList);
-          IDList := nil;
-        end;
-        CoUnInitialize();
-      end;
-    finally
-      Malloc.Free(lpBuf);
-    end;
-  end;
-{$ENDIF MSWINDOWS}
-{$IF DEFINED(MACOS) AND NOT DEFINED(IOS)}
-var
-  LOpenDir: NSOpenPanel;
-  LInitialDir: NSURL;
-  LDlgResult: Integer;
-begin
-  Result := False;
-  LOpenDir := TNSOpenPanel.Wrap(TNSOpenPanel.OCClass.openPanel);
-  LOpenDir.setAllowsMultipleSelection(False);
-  LOpenDir.setCanChooseFiles(False);
-  LOpenDir.setCanChooseDirectories(True);
-  if ADir <> '' then
-  begin
-    LInitialDir := TNSURL.Create;
-    LInitialDir.initFileURLWithPath(NSSTR(ADir));
-    LOpenDir.setDirectoryURL(LInitialDir);
-  end;
-  if ATitle <> '' then
-    LOpenDir.setTitle(NSSTR(ATitle));
-  LOpenDir.retain;
-  try
-    LDlgResult := LOpenDir.runModal;
-    if LDlgResult = NSOKButton then
-    begin
-      ADir := string(TNSUrl.Wrap(LOpenDir.URLs.objectAtIndex(0)).relativePath.UTF8String);
-      Result := True;
-    end;
-  finally
-    LOpenDir.release;
-  end;
-{$ENDIF MACOS}
-{$IF DEFINED(IOS) OR DEFINED(ANDROID)}
-begin
-{$ENDIF}
 end;
 
 procedure TOptionsFrame.ShowStylerStyles(AStylerName: string);

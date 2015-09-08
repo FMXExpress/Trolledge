@@ -10,6 +10,7 @@ type
         function FindMethodFromParent : TSyntaxNode;
 
         class function ParseFile(const AFIleName : string; const APlatform: string) : string;
+        class function ParseText(const AText : string; const APlatform: string) : string;
     end;
 implementation
 
@@ -64,26 +65,36 @@ var
 begin
     Result := '';
     if TSerializerUtils.LoadString(AFileName, LData) then
-    begin
-        StringStream := TStringStream.Create(LData, TEncoding.Unicode);
+        Result := ParseText(LData, APlatform);
+end;
+{------------------------------------------------------------------------------}
+class function TSyntaxNodeHelper.ParseText(const AText,
+  APlatform: string): string;
+var
+  ASTBuilder: TPasSyntaxTreeBuilder;
+  StringStream: TStringStream;
+  SyntaxTree: TSyntaxNode;
+  LStream : TStringStream;
+begin
+    Result := '';
+    StringStream := TStringStream.Create(AText, TEncoding.Unicode);
+    try
+        StringStream.Position := 0;
+        ASTBuilder := TPasSyntaxTreeBuilder.Create;
         try
-            StringStream.Position := 0;
-            ASTBuilder := TPasSyntaxTreeBuilder.Create;
+            ASTBuilder.AddDefine(APlatform);
+            ASTBuilder.InitDefinesDefinedByCompiler;
+            SyntaxTree := ASTBuilder.Run(StringStream);
             try
-                ASTBuilder.AddDefine(APlatform);
-                ASTBuilder.InitDefinesDefinedByCompiler;
-                SyntaxTree := ASTBuilder.Run(StringStream);
-                try
-                    Result := TSyntaxTreeWriter.ToXML(SyntaxTree, True);
-                finally
-                    SyntaxTree.Free;
-                end;
+                Result := TSyntaxTreeWriter.ToXML(SyntaxTree, True);
             finally
-              ASTBuilder.Free;
+                SyntaxTree.Free;
             end;
         finally
-            StringStream.Free;
+          ASTBuilder.Free;
         end;
+    finally
+        StringStream.Free;
     end;
 end;
 {------------------------------------------------------------------------------}

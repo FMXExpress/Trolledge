@@ -15,8 +15,12 @@ uses
   FMX.ListView.Types, FMX.ListView, FMX.Searchbox, Data.Bind.Components,
   Data.Bind.ObjectScope, PaxInterpreter, uPlugin,
   uWorkFiles, uMemoHexView, duck, OXmlPDOM, uCodeCompleteInfo
-  {$IFDEF VER290}
-   , FMX.ScrollBox, FMX.Memo, uOptions
+  {$IFDEF MSWINDOWS}
+  , FMX.Platform.Win
+  {$ENDIF}
+  {$IFDEF VER300}
+   , FMX.ScrollBox, FMX.Memo, uOptions, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base
   {$ENDIF}
   ;
 
@@ -56,7 +60,7 @@ type
     actUndo: TAction;
     actRedo: TAction;
     Label1: TLabel;
-    actSearch: TAction;
+    actFind: TAction;
     TMSFMXMemoFindDialog1: TTMSFMXMemoFindDialog;
     TMSFMXMemoCSSStyler1: TTMSFMXMemoCSSStyler;
     TMSFMXMemoBasicStyler1: TTMSFMXMemoBasicStyler;
@@ -109,7 +113,7 @@ type
     TabItem2: TTabItem;
     pnlSearch: TPanel;
     edFindInFiles: TEdit;
-    actFindInFiles: TAction;
+    actSearchInFiles: TAction;
     TreeView2: TTreeView;
     MenuItem27: TMenuItem;
     Label2: TLabel;
@@ -290,7 +294,7 @@ type
     procedure actPasteExecute(Sender: TObject);
     procedure actUndoExecute(Sender: TObject);
     procedure actRedoExecute(Sender: TObject);
-    procedure actSearchExecute(Sender: TObject);
+    procedure actFindExecute(Sender: TObject);
     procedure actCutUpdate(Sender: TObject);
     procedure actCopyUpdate(Sender: TObject);
     procedure actUndoUpdate(Sender: TObject);
@@ -315,7 +319,7 @@ type
       var KeyChar: Char; Shift: TShiftState);
     procedure actReplaceExecute(Sender: TObject);
     procedure actReplaceUpdate(Sender: TObject);
-    procedure actSearchUpdate(Sender: TObject);
+    procedure actFindUpdate(Sender: TObject);
     procedure TMSFMXMemo1KeyUp(Sender: TObject; var Key: Word;
       var KeyChar: Char; Shift: TShiftState);
     procedure TMSFMXMemo1MouseUp(Sender: TObject; Button: TMouseButton;
@@ -326,7 +330,7 @@ type
       var KeyChar: Char; Shift: TShiftState);
     procedure btnFindInFilesKeyDown(Sender: TObject; var Key: Word;
       var KeyChar: Char; Shift: TShiftState);
-    procedure actFindInFilesExecute(Sender: TObject);
+    procedure actSearchInFilesExecute(Sender: TObject);
     procedure TreeView2DblClick(Sender: TObject);
     procedure MenuItem27Click(Sender: TObject);
     procedure actToggleFullscreenExecute(Sender: TObject);
@@ -459,12 +463,13 @@ type
     procedure SaveAll;
     procedure SetTheme(AThemeIndex: integer);
     //-------------------------------------------------------------------------
+    function  GetPasUnitFile(AFormFileName: string): string;
     function  GetFormUnitFile(AUnitFileName: string): string;
     procedure SelectLine(lNumber: Integer);
     procedure EmptyButtonsText;
     procedure ReArrangeMemoFrames;
-    function SplitEditor(Sender: TObject): TMemoFrame; overload;
-    function SplitEditor(ATag: integer): TMemoFrame; overload;
+    function  SplitEditor(Sender: TObject): TMemoFrame; overload;
+    function  SplitEditor(ATag: integer): TMemoFrame; overload;
     procedure TryOpenFormUnit(AFileName: string);
     procedure UpdateImages(AImageList: TImagelist);
     procedure UpdateActiveProjectDir;
@@ -598,10 +603,10 @@ var
   DefTop: integer;
   FullScr: boolean;
 begin
- {$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
   SettingsDir := TPath.GetDirectoryName(ParamStr(0));
  {$ELSE}
-  SettingsDir := TPath.GetDocumentsPath;
+  SettingsDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
  {$ENDIF}
  IniFile := TMemIniFile.Create(TPath.Combine(SettingsDir,'settings.ini'));
  try
@@ -633,7 +638,7 @@ begin
   FMemoGutterLightFontColor := IniFile.ReadInteger('MemoGutterFontColor', 'Light', claBlack);
   FMemoGutterDarkFontColor := IniFile.ReadInteger('MemoGutterFontColor', 'Dark', claDarkGray);
 
-  FRTLPath := IniFile.ReadString('SearchInFiles', 'RTL', 'c:\program files (x86)\embarcadero\studio\16.0\source');
+  FRTLPath := IniFile.ReadString('SearchInFiles', 'RTL', CRTLPath);
   edPathToRtl.Text := FRTLPath;
   FSearchPath := IniFile.ReadString('SearchInFiles', 'SearchPath', '');
 
@@ -715,10 +720,10 @@ var
   SettingsDir: string;
   AMemo: TTMSFMXMemo;
 begin
- {$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
   SettingsDir := TPath.GetDirectoryName(ParamStr(0));
  {$ELSE}
-  SettingsDir := TPath.GetDocumentsPath;
+  SettingsDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
  {$ENDIF}
  IniFile := TMemIniFile.Create(TPath.Combine(SettingsDir,'settings.ini'));
  try
@@ -824,6 +829,13 @@ begin
 
   WorkFilesTree.MoveToMemoStream(VictimFrame);
 
+  if (not VictimFrame.FMemoChanged) and (VictimFrame.TMSFMXMemo1.Lines.Count = 1) then
+  begin
+    if VictimFrame.FPredFileName.Contains(CDefFileName) then
+      WorkFilesTree.DeleteFromWorkList(VictimFrame.FPredFileName, VictimFrame.Tag);
+  end;
+
+
   VictimFrame.TMSFMXMemo1.Lines.Clear;
   VictimFrame.TMSFMXMemo1.ClearUndoRedo;
   VictimFrame.Visible := False;
@@ -923,8 +935,10 @@ begin
   Application.ProcessMessages;
 end;
 
-procedure TfrmMain.actFindInFilesExecute(Sender: TObject);
+procedure TfrmMain.actSearchInFilesExecute(Sender: TObject);
 begin
+  actSwitchToSearch.Execute;
+
   if SearchFilesTree.SearchRunning then
     Exit;
 
@@ -1079,16 +1093,19 @@ begin
 end;
 
 procedure TfrmMain.actOpenFolderExecute(Sender: TObject);
+var
+NewPath: String;
 begin
   if not TabControl1.Visible then TabControl1.Visible := True;
   TabControl1.ActiveTab := TabItem1;
 
-  if OpenDialog1.Execute then
+  if SelectDirectory('Open Folder', NewPath{$IFDEF MSWINDOWS}, FMX.Platform.Win.WindowHandleToPlatform(Handle).Wnd{$ENDIF}) then
   begin
-    FActiveProjectDir := TPath.GetDirectoryName(OpenDialog1.FileName);
+    FActiveProjectDir := NewPath;
     UpdateActiveProjectDir;
+    ShowCaption;
 
-    FilesTree.EnumDir(TPath.GetDirectoryName(OpenDialog1.FileName));
+    FilesTree.EnumDir(NewPath);
     //LoadFrameFromFile(OpenDialog1.FileName,FSelectedFrame);
   end;
 end;
@@ -1170,7 +1187,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.actSearchExecute(Sender: TObject);
+procedure TfrmMain.actFindExecute(Sender: TObject);
 begin
  // MemoSearchEdit;
   MemoFindText;
@@ -1179,13 +1196,13 @@ end;
 
 procedure TfrmMain.actSearchRefreshExecute(Sender: TObject);
 begin
-  actFindInFiles.Execute;
+  actSearchInFiles.Execute;
 end;
 
-procedure TfrmMain.actSearchUpdate(Sender: TObject);
+procedure TfrmMain.actFindUpdate(Sender: TObject);
 begin
   if FSelectedMemo<>nil then
-    ActSearch.Enabled := FSelectedMemo.Lines.Count > 0;
+    ActFind.Enabled := FSelectedMemo.Lines.Count > 0;
 end;
 
 procedure TfrmMain.actShowAboutExecute(Sender: TObject);
@@ -1200,7 +1217,7 @@ begin
   LFrame := SplitEditor(TAction(Sender).Target.Tag);
   if LFrame <> nil then
   begin
-    LoadFrameFromFile(FSelectedFrame.FPredFileName, LFrame);
+    LoadFrameFromFile(GetMemoFrameByTag(TAction(Sender).Target.Tag).FPredFileName, LFrame);
     ReArrangeMemoFrames;
   end;
 end;
@@ -1383,14 +1400,14 @@ procedure TfrmMain.btnFindInFilesKeyDown(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   if Key = System.UITypes.vkReturn then
-    if actFindInFiles.Enabled then actFindInFilesExecute(Self);
+    if actSearchInFiles.Enabled then actSearchInFilesExecute(Self);
 end;
 
 procedure TfrmMain.edFindInFilesKeyDown(Sender: TObject; var Key: Word;
   var KeyChar: Char; Shift: TShiftState);
 begin
   if Key = System.UITypes.vkReturn then
-    actFindInFilesExecute(Self);
+    actSearchInFilesExecute(Self);
     //if actFindText.Enabled then actFindTextExecute(Self);
 end;
 
@@ -1539,6 +1556,12 @@ var
 begin
   //ReportMemoryLeaksOnShutdown := True;
 
+ {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ {$ELSE}
+  if not TDirectory.Exists(System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim) then
+   TDirectory.CreateDirectory(System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName);
+ {$ENDIF}
+
 
   SetMemoFocus(MemoFrame2);
   FNewFileCount := 0;
@@ -1578,15 +1601,15 @@ begin
   EmptyButtonsText;
   lbStyleSetting.Text := CDefNone;
 
- {$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
   SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + CDefFileName + FNewFileCount.ToString;
  {$ELSE}
-  SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CDefFileName + FNewFileCount.ToString;
+  SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim + CDefFileName + FNewFileCount.ToString;
  {$ENDIF}
-  {$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+  {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
   FActiveProjectDir := TPath.GetDirectoryName(ParamStr(0));
   {$ELSE}
-  FActiveProjectDir := TPath.GetDirectoryName(TPath.GetDocumentsPath);
+  FActiveProjectDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
   {$ENDIF}
   UpdateActiveProjectDir;
 
@@ -1772,7 +1795,7 @@ var
 begin
   lvPlugins.BeginUpdate;
   try
-    lvPlugins.ClearItems;
+    lvPlugins.Items.Clear;
     for Plugin in FPlugins do
     begin
       Item := lvPlugins.Items.Add;
@@ -1887,6 +1910,25 @@ begin
 FrameOptions.Visible := False;
 end;
 
+function TfrmMain.GetPasUnitFile(AFormFileName: string): string;
+var
+  AFile: string;
+  SUnit, SForm: string;
+  SExt: string;
+begin
+  Result := '';
+  SExt := TPath.GetExtension(AFormFileName);
+  if ContainsText(CPascalFormExt, SExt) then
+   begin
+    SUnit := TPath.GetFileNameWithoutExtension(AFormFileName);
+    AFile := ExtractFilePath(AFormFileName) + SUnit + CPascalUnitExt;
+    if TFile.Exists(AFile) then
+     begin
+      Result := AFile;
+     end;
+   end;
+end;
+
 function TfrmMain.GetFormUnitFile(AUnitFileName: string): string;
 var
   LFilesList: TStringDynArray;
@@ -1895,12 +1937,15 @@ var
   SExt: string;
 begin
   Result := EmptyStr;
-  if not SameText(TPath.GetExtension(AUnitFileName), '.pas') then
-    Exit;
+  if not SameText(TPath.GetExtension(AUnitFileName), CPascalUnitExt) then
+    begin
+      Result := GetPasUnitFile(AUnitFileName);
+      Exit;
+    end;
 
   try
     SUnit := TPath.GetFileNameWithoutExtension(AUnitFileName);
-    LFIlesList := TDirectory.GetFiles(ExtractFilePath(AUnitFileName));
+    LFilesList := TDirectory.GetFiles(ExtractFilePath(AUnitFileName));
     for s in LFilesList do
     begin
       SForm := TPath.GetFileNameWithoutExtension(s);
@@ -2024,7 +2069,7 @@ begin
   begin
     if AMemoFrame.ListView1.Selected <> nil then
     begin
-      SActionHint := AMemoFrame.ListView1.Selected.Text;
+      SActionHint := AMemoFrame.ListView1.Items[AMemoFrame.ListView1.Selected.Index].Text;
       Self.duck.all.isa(Taction).each(
         procedure(obj: TObject)
         begin
@@ -2068,7 +2113,7 @@ begin
               if AMemoFrame.ListView1.ItemCount = 0 then
                 Exit;
 
-              LItem := AMemoFrame.ListView1.Selected;
+              LItem := AMemoFrame.ListView1.Items[AMemoFrame.ListView1.Selected.Index];
               if LItem <> nil then
                 GoToListFileName(LItem.Detail + LItem.Text, AMemoFrame);
             end;
@@ -2096,7 +2141,7 @@ begin
           else
           if Sender is TListView then
           begin
-            LItem := AMemoFrame.ListView1.Selected;
+            LItem := AMemoFrame.ListView1.Items[AMemoFrame.ListView1.Selected.Index];
             if LItem <> nil then
               S := LItem.Text;
           end;
@@ -2848,6 +2893,14 @@ begin
     procedure(obj: TObject)
     begin
       if TMemoFrame(obj).Visible then TMemoFrame(obj).Width := FrameWidth;
+      if FrameCount>=3 then
+       begin
+         TMemoFrame(obj).btnSplitEditor.Visible := False;
+       end
+      else
+       begin
+         TMemoFrame(obj).btnSplitEditor.Visible := True;
+       end;
     end
   );
 
@@ -2918,7 +2971,7 @@ begin
       FSelectedFrame.lbFilePath.Text := ExtractFilePath(AFileName)
     else
       FSelectedFrame.lbFilePath.Text := EmptyStr;
-    FSelectedFrame.lbFileName.TextSettings.Font.Style := [TFontSTyle.fsBold];
+    FSelectedFrame.lbFileName.TextSettings.Font.Style := [TFontStyle.fsBold];
   end;
 end;
 
@@ -3065,7 +3118,8 @@ procedure TfrmMain.TMSFMXMemo1MouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Single);
 begin
   SetMemoFocus(TMemoFrame(TTMSFMXMemo(Sender).Parent));
-  ShowFileName(FSelectedFrame.FPredFileName);
+//  ShowFileName(FSelectedFrame.FPredFileName);
+  ShowFileName(TMemoFrame(TTMSFMXMemo(Sender).Parent).FPredFileName);
   ShowCaretPos;
 end;
 
@@ -3131,6 +3185,8 @@ procedure TfrmMain.TreeView1Click(Sender: TObject);
 var
   LItem: TTreeViewItem;
 begin
+  if ProgressBar1.Visible then
+   Exit;
   LItem := TreeView1.Selected;
   if (LItem <> nil) and (LItem.ParentItem <> nil) then
   begin
@@ -3143,6 +3199,9 @@ procedure TfrmMain.TreeView1DblClick(Sender: TObject);
 var
   LItem: TTreeViewItem;
 begin
+  if ProgressBar1.Visible then
+   Exit;
+
   LItem := TreeView1.Selected;
   if (LItem <> nil) and (LItem.ParentItem <> nil) then
   begin
@@ -3233,6 +3292,7 @@ begin
     if VictimFrame <> nil then
     begin
       LoadFrameFromFile(SForm, VictimFrame);
+      ShowFileName(VictimFrame.FPredFileName);
       ReArrangeMemoFrames;
     end;
   finally
@@ -3479,7 +3539,6 @@ procedure TfrmMain.ParseTimerTimer(Sender: TObject);
 begin
  if FSelectedMemo <> nil then
   begin
-    if (lbStyleSetting.Text='Pascal') AND (FSelectedMemo.Lines.Text<>'') then
       ChangeCode(FSelectedMemo.Lines.Text);
   end;
 end;
@@ -3491,6 +3550,9 @@ var
     LNow : TDateTime;
     LTask : ITask;
 begin
+    if (lbStyleSetting.Text<>'Pascal') OR (FSelectedMemo.Lines.Text='') then
+     Exit;
+
     if FCodeList.Text.Contains(ACode) then
         exit;
     FCodeList.Text := ACode;
@@ -3503,19 +3565,25 @@ begin
         begin
             try
                 LNow := Now;
-                temp := ParseContent(ACode);
-                if Info.Parse(temp, True) then
+                //temp := ParseContent(ACode);
+                //if Info.Parse(temp, True) then
+                //    LText := 'Success';
+                if Info.ParseFromText(ACode, True) then
                     LText := 'Success';
             except
                 on E: EParserException do
                     LText := (Format('[%d, %d] %s', [E.Line, E.Col, E.Message]));
             end;
             LmSecCount := MilliSecondsBetween(Now, LNow);
-            TThread.Queue(nil,
-                procedure
-                begin
-                    lblCompile.Text := LText + ' Time : ' + string.Parse(LmSecCount);
-                end);
+            if FSelectedMemo<>nil then
+              if FSelectedMemo.Popup.Visible=False then
+               begin
+                TThread.Queue(nil,
+                    procedure
+                    begin
+                        lblCompile.Text := LText + ' Time : ' + string.Parse(LmSecCount);
+                    end);
+               end;
         end
     );
     LTask.Start;

@@ -27,7 +27,7 @@ type
   end;
 
 const
-  CFileTypeArray: array[0..46] of TExtentionData =
+  CFileTypeArray: array[0..49] of TExtentionData =
   (
     //.jpeg;.jpg;.jpe;.tif;.tiff;.png;.bmp;.ico;.gif
     (FileType: ftImage; FileExt: '.jpeg'), (FileType: ftImage; FileExt: '.jpg'),
@@ -40,7 +40,7 @@ const
     (FileType: ftBinary; FileExt: '.dll'), (FileType: ftBinary; FileExt: '.dcu'),
     (FileType: ftBinary; FileExt: '.res'), (FileType: ftBinary; FileExt: '.bpl'),
     (FileType: ftBinary; FileExt: '.dcl'), (FileType: ftBinary; FileExt: '.dmg'),
-    (FileType: ftBinary; FileExt: '.pkg'),
+    (FileType: ftBinary; FileExt: '.pkg'), (FileType: ftBinary; FileExt: '.a'),
     //*.zip;*.apk;*.ipa
     (FileTYpe: ftArchive; FileExt: '.zip'), (FileType: ftArchive; FileExt: '.apk'),
     (FileType: ftArchive; FileExt: '.ipa'),
@@ -53,12 +53,13 @@ const
     (FileType: ftScript; FileExt: '.bas'), (FileType: ftScript; FileExt: '.cs'),
     (FileType: ftScript; FileExt: '.js'),  (FileType: ftScript; FileExt: '.java'),
     (FileType: ftScript; FileExt: '.css'), (FileType: ftScript; FileExt: '.xml'),
+    (FileType: ftScript; FileExt: '.php'),
     //dproj;deployproj;lpi;sproj;dsk;sfm;stat;todo;vlb
     (FileType: ftScript; FileExt: '.dproj'),(FileType: ftScript; FileExt: '.deployproj'),
     (FileType: ftScript; FileExt: '.lpi'),  (FileType: ftScript; FileExt: '.sproj'),
     (FileType: ftScript; FileExt: '.dsk'),  (FileType: ftScript; FileExt: '.sfm'),
     (FileType: ftScript; FileExt: '.stat'), (FileType: ftScript; FileExt: '.todo'),
-    (FileType: ftScript; FileExt: '.vlb'),
+    (FileType: ftScript; FileExt: '.vlb'), (FileType: ftScript; FileExt: '.dproj.local'),
     //sql;
     (FileType: ftScript; FileExt: '.sql')
   );
@@ -273,7 +274,7 @@ var
 begin
   FileMgr := TNSFileManager.Create;
   Dict := FileMgr.fileAttributesAtPath(NSSTR(AFileName), False);
-  Result := ftUnknown;
+  Result := ftScript;
 end;
 {$ENDIF MACOS}
 
