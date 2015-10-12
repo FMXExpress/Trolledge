@@ -318,6 +318,7 @@ var
   SL: TStringList;
   I: Integer;
   FoundCount: Integer;
+  ASearch, ASearchFile: String;
 begin
   if FSearchCancel then
     Exit;
@@ -346,6 +347,11 @@ begin
     if FSearchCancel then
       Exit;
 
+    if not FCaseSensitive then
+     ASearch := ASearchString.ToUpper
+    else
+     ASearch := ASearchString;
+
     // Enum files into current directory
     FilesList := TDirectory.GetFiles(ADirName, FileFilter);
     if Length(FilesList) > 0 then
@@ -355,8 +361,19 @@ begin
       begin
         if FSearchCancel then
           Break;
-          SL.LoadFromFile(SFile);
-          if SL.Text.Contains(ASearchString) = True then
+          try
+           SL.LoadFromFile(SFile);
+           if not FCaseSensitive then
+            ASearchFile := SL.Text.ToUpper
+           else
+            ASearchFile := SL.Text;
+          except
+           on E: Exception do
+            begin
+             // do nothing
+            end;
+          end;
+          if ASearchFile.Contains(ASearch) = True then
           begin
             LItem := TTreeViewItem.Create(FTreeView);
             if AParentItem = nil then LItem.Parent := FTreeView
@@ -371,11 +388,24 @@ begin
               begin
                 if FSearchCancel then
                   Break;
-                if SL[I].Contains(ASearchString)=True then
+
+                if not FCaseSensitive then
+                  begin
+                    if SL[I].ToUpper.Contains(ASearch)=True then
+                     begin
+                      if FoundCount<=10 then
+                       AddSearchLine(IntToStr(I), SL[I], Litem);
+                      Inc(FoundCount);
+                     end;                 
+                  end
+                else
                  begin
-                  if FoundCount<=10 then
-                   AddSearchLine(IntToStr(I), SL[I], Litem);
-                  Inc(FoundCount);
+                  if SL[I].Contains(ASearch)=True then
+                   begin
+                    if FoundCount<=10 then
+                     AddSearchLine(IntToStr(I), SL[I], Litem);
+                    Inc(FoundCount);
+                   end;
                  end;
               end;
 

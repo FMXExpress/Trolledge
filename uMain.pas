@@ -71,14 +71,14 @@ type
     TMSFMXMemoCSharpStyler1: TTMSFMXMemoCSharpStyler;
     actSyntaxSelect: TAction;
     SyntaxSelectPopup: TPopupMenu;
-    MenuItem1: TMenuItem;
-    MenuItem2: TMenuItem;
-    MenuItem3: TMenuItem;
-    MenuItem4: TMenuItem;
-    MenuItem5: TMenuItem;
-    MenuItem6: TMenuItem;
-    MenuItem7: TMenuItem;
-    MenuItem8: TMenuItem;
+    PascalSynMI: TMenuItem;
+    CSharpSynMI: TMenuItem;
+    CSSSynMI: TMenuItem;
+    VBSynMI: TMenuItem;
+    JSSynMI: TMenuItem;
+    HTMLSynMI: TMenuItem;
+    XMLSynMI: TMenuItem;
+    SQLSynMI: TMenuItem;
     MemoStyleBook: TStyleBook;
     ApplicationDarkStyle: TStyleBook;
     MainMenu1: TMainMenu;
@@ -115,7 +115,7 @@ type
     edFindInFiles: TEdit;
     actSearchInFiles: TAction;
     TreeView2: TTreeView;
-    MenuItem27: TMenuItem;
+    PlainSynMI: TMenuItem;
     Label2: TLabel;
     SearchLayout: TLayout;
     Rectangle1: TRectangle;
@@ -243,8 +243,8 @@ type
     TMSFMXMemoJavaStyler: TTMSFMXMemoJavaScriptStyler;
     ProgressBar1: TProgressBar;
     txtHexViewProgress: TText;
-    MenuItem63: TMenuItem;
-    MenuItem64: TMenuItem;
+    CPPSynMI: TMenuItem;
+    JavaSynMI: TMenuItem;
     Panel1: TPanel;
     SpeedButton1: TSpeedButton;
     Image1: TImage;
@@ -286,6 +286,17 @@ type
     MenuItem67: TMenuItem;
     actHelp: TAction;
     Layout1: TLayout;
+    actCPP: TAction;
+    actXML: TAction;
+    actHTML: TAction;
+    actPAS: TAction;
+    actJava: TAction;
+    actCSharp: TAction;
+    actJS: TAction;
+    actVB: TAction;
+    actCSS: TAction;
+    actSQL: TAction;
+    actPlain: TAction;
     procedure FormCreate(Sender: TObject);
     procedure actOpenFolderExecute(Sender: TObject);
     procedure actSaveFileExecute(Sender: TObject);
@@ -303,14 +314,13 @@ type
     procedure TMSFMXMemo1GetAutoCompletionList(Sender: TObject; AToken: string;
       AList: TStringList);
     procedure actSyntaxSelectExecute(Sender: TObject);
-    procedure MenuItem1Click(Sender: TObject);
-    procedure MenuItem2Click(Sender: TObject);
-    procedure MenuItem3Click(Sender: TObject);
-    procedure MenuItem4Click(Sender: TObject);
-    procedure MenuItem5Click(Sender: TObject);
-    procedure MenuItem6Click(Sender: TObject);
-    procedure MenuItem7Click(Sender: TObject);
-    procedure MenuItem8Click(Sender: TObject);
+    procedure CSharpSynMIClick(Sender: TObject);
+    procedure CSSSynMIClick(Sender: TObject);
+    procedure VBSynMIClick(Sender: TObject);
+    procedure JSSynMIClick(Sender: TObject);
+    procedure HTMLSynMIClick(Sender: TObject);
+    procedure XMLSynMIClick(Sender: TObject);
+    procedure SQLSynMIClick(Sender: TObject);
     procedure actQuitExecute(Sender: TObject);
     procedure actFindTextExecute(Sender: TObject);
     procedure actFindTextUpdate(Sender: TObject);
@@ -331,8 +341,7 @@ type
     procedure btnFindInFilesKeyDown(Sender: TObject; var Key: Word;
       var KeyChar: Char; Shift: TShiftState);
     procedure actSearchInFilesExecute(Sender: TObject);
-    procedure TreeView2DblClick(Sender: TObject);
-    procedure MenuItem27Click(Sender: TObject);
+    procedure PlainSynMIClick(Sender: TObject);
     procedure actToggleFullscreenExecute(Sender: TObject);
     procedure actZoomInExecute(Sender: TObject);
     procedure actZoomOutExecute(Sender: TObject);
@@ -384,8 +393,7 @@ type
     procedure actSwitchToSearchExecute(Sender: TObject);
     procedure actGoToCodeExecute(Sender: TObject);
     procedure TreeView1DblClick(Sender: TObject);
-    procedure MenuItem63Click(Sender: TObject);
-    procedure MenuItem64Click(Sender: TObject);
+    procedure JavaSynMIClick(Sender: TObject);
     procedure actExportToHTMLExecute(Sender: TObject);
     procedure ParseTimerTimer(Sender: TObject);
     procedure MemoFrame2ImageViewer1MouseUp(Sender: TObject;
@@ -400,6 +408,9 @@ type
     procedure FrameOptionsButton1Click(Sender: TObject);
     procedure FrameOptionsButton2Click(Sender: TObject);
     procedure actHelpExecute(Sender: TObject);
+    procedure actCPPExecute(Sender: TObject);
+    procedure actPASExecute(Sender: TObject);
+    procedure TreeView2Click(Sender: TObject);
   private
     { Private declarations }
     //--------------------------------------------------------------------------
@@ -603,11 +614,11 @@ var
   DefTop: integer;
   FullScr: boolean;
 begin
- {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
-  SettingsDir := TPath.GetDirectoryName(ParamStr(0));
- {$ELSE}
+ //{$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ // SettingsDir := TPath.GetDirectoryName(ParamStr(0));
+ //{$ELSE}
   SettingsDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
- {$ENDIF}
+ //{$ENDIF}
  IniFile := TMemIniFile.Create(TPath.Combine(SettingsDir,'settings.ini'));
  try
  Self.duck.all.has('AllStyles').each(
@@ -638,9 +649,15 @@ begin
   FMemoGutterLightFontColor := IniFile.ReadInteger('MemoGutterFontColor', 'Light', claBlack);
   FMemoGutterDarkFontColor := IniFile.ReadInteger('MemoGutterFontColor', 'Dark', claDarkGray);
 
+
   FRTLPath := IniFile.ReadString('SearchInFiles', 'RTL', CRTLPath);
   edPathToRtl.Text := FRTLPath;
   FSearchPath := IniFile.ReadString('SearchInFiles', 'SearchPath', '');
+  edFileNameMask.Text := IniFile.ReadString('SearchInFiles', 'FileNameMask', '');
+  edFoldersInclude.Text := IniFile.ReadString('SearchInFiles', 'FoldersInclude', '');
+  edFoldersExclude.Text := IniFile.ReadString('SearchInFiles', 'FoldersExclude', '__history;__recovery');
+  chkCasesensitive.IsChecked := IniFile.ReadBool('SearchInFiles', 'CaseSensitive', False);
+
 
   with FMemoSettings do
   begin
@@ -720,11 +737,11 @@ var
   SettingsDir: string;
   AMemo: TTMSFMXMemo;
 begin
- {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
-  SettingsDir := TPath.GetDirectoryName(ParamStr(0));
- {$ELSE}
+ //{$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ // SettingsDir := TPath.GetDirectoryName(ParamStr(0));
+ //{$ELSE}
   SettingsDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
- {$ENDIF}
+ //{$ENDIF}
  IniFile := TMemIniFile.Create(TPath.Combine(SettingsDir,'settings.ini'));
  try
   Self.duck.all.has('AllStyles').each(
@@ -757,7 +774,12 @@ begin
 
   FRTLPath := edPathToRtl.Text;
   IniFile.WriteString('SearchInFiles', 'RTL', FRTLPath);
-  IniFile.WriteString('SeacrhInFiles', 'SearchPath', FSearchPath);
+  IniFile.WriteString('SearchInFiles', 'SearchPath', FSearchPath);
+  IniFile.WriteString('SearchInFiles', 'FileNameMask', edFileNameMask.Text);
+  IniFile.WriteString('SearchInFiles', 'FoldersInclude', edFoldersInclude.Text);
+  IniFile.WriteString('SearchInFiles', 'FoldersExclude', edFoldersExclude.Text);
+  IniFile.WriteBool('SearchInFiles', 'CaseSensitive', chkCasesensitive.IsChecked);
+
 
   AMemo := FSelectedMemo;
   if AMemo = nil then
@@ -821,52 +843,59 @@ var
   VictimFrame: TMemoFrame;
   SelectedSet: Boolean;
 begin
-  VictimFrame := GetMemoFrameByTag(TAction(Sender).Tag);
+  VictimFrame := GetMemoFrameByTag(TAction(Sender).Target.Tag);
   if VictimFrame = nil then
     VictimFrame := FSelectedFrame;
-  if (VictimFrame = nil) or (not VictimFrame.Visible) then
+  if (VictimFrame = nil) then// or (not VictimFrame.Visible) then
     Exit;
 
-  WorkFilesTree.MoveToMemoStream(VictimFrame);
+  if MemoCheckModified(VictimFrame) then
+   begin
+    ParseTimer.Enabled := False;
+    WorkFilesTree.MoveToMemoStream(VictimFrame);
 
-  if (not VictimFrame.FMemoChanged) and (VictimFrame.TMSFMXMemo1.Lines.Count = 1) then
-  begin
-    if VictimFrame.FPredFileName.Contains(CDefFileName) then
-      WorkFilesTree.DeleteFromWorkList(VictimFrame.FPredFileName, VictimFrame.Tag);
-  end;
-
-
-  VictimFrame.TMSFMXMemo1.Lines.Clear;
-  VictimFrame.TMSFMXMemo1.ClearUndoRedo;
-  VictimFrame.Visible := False;
-  VictimFrame.FMemoChanged := False;
-  VictimFrame.FPredFileName := EmptyStr;
-
-  case VictimFrame.Tag of
-    1: begin
-          Splitter2.Visible := False;
-    end;
-    2: begin
-          if MemoFrame3.Visible then Splitter3.Visible := False;
-          if MemoFrame1.Visible then Splitter2.Visible := False;
-    end;
-    3: begin
-          Splitter3.Visible := False;
-    end;
-  end;
-  ReArrangeMemoFrames;
-
-  Self.duck.all.isa(TMemoFrame).each(
-    procedure(obj: TObject)
+    if (not VictimFrame.FMemoChanged) and (VictimFrame.TMSFMXMemo1.Lines.Count = 1) then
     begin
-      if (TMemoFrame(obj).Visible=True) AND (SelectedSet=False) then
-       begin
-        SetMemoFocus(TMemoFrame(obj));
-        ShowFileName(FSelectedFrame.FPredFileName);
-        SelectedSet := True;
-       end;
-    end
-  );
+      if VictimFrame.FPredFileName.Contains(CDefFileName) then
+        WorkFilesTree.DeleteFromWorkList(VictimFrame.FPredFileName, VictimFrame.Tag);
+    end;
+
+    VictimFrame.Visible := False;
+    VictimFrame.FMemoChanged := False;
+    VictimFrame.FPredFileName := EmptyStr;
+
+    case VictimFrame.Tag of
+      1: begin
+            Splitter2.Visible := False;
+      end;
+      2: begin
+            if MemoFrame3.Visible then Splitter3.Visible := False;
+            if MemoFrame1.Visible then Splitter2.Visible := False;
+      end;
+      3: begin
+            Splitter3.Visible := False;
+      end;
+    end;
+    ReArrangeMemoFrames;
+
+    Self.duck.all.isa(TMemoFrame).each(
+      procedure(obj: TObject)
+      begin
+        if (TMemoFrame(obj).Visible=True) AND (SelectedSet=False) then
+         begin
+          SetMemoFocus(TMemoFrame(obj));
+          ShowFileName(FSelectedFrame.FPredFileName);
+          SelectedSet := True;
+         end;
+      end
+    );
+
+    Application.ProcessMessages;
+    VictimFrame.TMSFMXMemo1.Lines.Clear;
+    VictimFrame.TMSFMXMemo1.ClearUndoRedo;
+
+    ParseTimer.Enabled := True;
+  end;
 
 end;
 
@@ -1007,6 +1036,16 @@ begin
 OpenURL('http://docwiki.embarcadero.com/',False);
 end;
 
+procedure TfrmMain.actCPPExecute(Sender: TObject);
+begin
+  if FSelectedMemo<>nil then
+  begin
+    FSelectedMemo.SyntaxStyles := TMSFMXMemoCppStyler;
+    lbStyleSetting.Text := 'C++';
+    FSelectedMemo.Repaint;
+  end;
+end;
+
 procedure TfrmMain.actLightThemeExecute(Sender: TObject);
 begin
   FThemeIndex := 1;
@@ -1107,6 +1146,16 @@ begin
 
     FilesTree.EnumDir(NewPath);
     //LoadFrameFromFile(OpenDialog1.FileName,FSelectedFrame);
+  end;
+end;
+
+procedure TfrmMain.actPASExecute(Sender: TObject);
+begin
+ if FSelectedMemo<>nil then
+  begin
+    FSelectedMemo.SyntaxStyles := TMSFMXMemoPascalStyler1;
+    lbStyleSetting.Text := 'Pascal';
+    FSelectedMemo.Repaint;
   end;
 end;
 
@@ -1556,11 +1605,11 @@ var
 begin
   //ReportMemoryLeaksOnShutdown := True;
 
- {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
- {$ELSE}
+ //{$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ //{$ELSE}
   if not TDirectory.Exists(System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim) then
    TDirectory.CreateDirectory(System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName);
- {$ENDIF}
+ //{$ENDIF}
 
 
   SetMemoFocus(MemoFrame2);
@@ -1601,16 +1650,16 @@ begin
   EmptyButtonsText;
   lbStyleSetting.Text := CDefNone;
 
- {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
-  SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + CDefFileName + FNewFileCount.ToString;
- {$ELSE}
+ //{$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+ // SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(ExtractFilePath(ParamStr(0))) + CDefFileName + FNewFileCount.ToString;
+ //{$ELSE}
   SDefFileName := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim + CDefFileName + FNewFileCount.ToString;
- {$ENDIF}
-  {$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
-  FActiveProjectDir := TPath.GetDirectoryName(ParamStr(0));
-  {$ELSE}
+ //{$ENDIF}
+  //{$IF (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+  //FActiveProjectDir := TPath.GetDirectoryName(ParamStr(0));
+  //{$ELSE}
   FActiveProjectDir := System.SysUtils.IncludeTrailingPathDelimiter(TPath.GetDocumentsPath) + CAppName + PathDelim;
-  {$ENDIF}
+  //{$ENDIF}
   UpdateActiveProjectDir;
 
   //SetMemoFocus(MemoFrame2);
@@ -2458,6 +2507,7 @@ var
   LItem: TWorkItem;
   SLineFeed: string;
   n: integer;
+  SS: TStringStream;
 begin
   SetMemoFocus(AMemoFrame);
   FSelectedFrame.ImageViewer1.Visible := False;
@@ -2682,17 +2732,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem1Click(Sender: TObject);
-begin
- if FSelectedMemo<>nil then
-  begin
-    FSelectedMemo.SyntaxStyles := TMSFMXMemoPascalStyler1;
-    lbStyleSetting.Text := 'Pascal';
-    FSelectedMemo.Repaint;
-  end;
-end;
-
-procedure TfrmMain.MenuItem27Click(Sender: TObject);
+procedure TfrmMain.PlainSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2702,7 +2742,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem2Click(Sender: TObject);
+procedure TfrmMain.CSharpSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2712,7 +2752,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem3Click(Sender: TObject);
+procedure TfrmMain.CSSSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2722,7 +2762,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem4Click(Sender: TObject);
+procedure TfrmMain.VBSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2732,7 +2772,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem5Click(Sender: TObject);
+procedure TfrmMain.JSSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2742,17 +2782,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem63Click(Sender: TObject);
-begin
-  if FSelectedMemo<>nil then
-  begin
-    FSelectedMemo.SyntaxStyles := TMSFMXMemoCppStyler;
-    lbStyleSetting.Text := 'C++';
-    FSelectedMemo.Repaint;
-  end;
-end;
-
-procedure TfrmMain.MenuItem64Click(Sender: TObject);
+procedure TfrmMain.JavaSynMIClick(Sender: TObject);
 begin
   if FSelectedMemo<>nil then
   begin
@@ -2777,7 +2807,7 @@ begin
   ChangeCodeCompletionPlatform(Sender);
 end;
 
-procedure TfrmMain.MenuItem6Click(Sender: TObject);
+procedure TfrmMain.HTMLSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2792,7 +2822,7 @@ begin
   ChangeCodeCompletionPlatform(Sender);
 end;
 
-procedure TfrmMain.MenuItem7Click(Sender: TObject);
+procedure TfrmMain.XMLSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo<>nil then
   begin
@@ -2802,7 +2832,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.MenuItem8Click(Sender: TObject);
+procedure TfrmMain.SQLSynMIClick(Sender: TObject);
 begin
  if FSelectedMemo <> nil then
   begin
@@ -3163,13 +3193,13 @@ begin
        lbCRLF.Text := '';
      end else
      // Let's load binary
-    if (FT = ftBinary) then
+    if (FT = ftBinary) or (FT = ftUnknown) then
     begin
       ShowBinaryFile(AFileName, AMemoFrame);
       lbEncoding.Text := 'Hex';
       lbCRLF.Text := '';
     end else
-    if (FT = ftScript) or (FT = ftUnknown) then
+    if (FT = ftScript) then
     begin
       MemoLoadFile(AFileName, AMemoFrame, ALineNumber);
     end;
@@ -3211,7 +3241,7 @@ begin
   end;
 end;
 
-procedure TfrmMain.TreeView2DblClick(Sender: TObject);
+procedure TfrmMain.TreeView2Click(Sender: TObject);
 var
   LItem: TTreeViewItem;
   ALineNumber: Integer;
@@ -3549,15 +3579,21 @@ var
     LmSecCount : Integer;
     LNow : TDateTime;
     LTask : ITask;
+    ASourceCode: String;
 begin
-    if (lbStyleSetting.Text<>'Pascal') OR (FSelectedMemo.Lines.Text='') then
-     Exit;
-
-    if FCodeList.Text.Contains(ACode) then
-        exit;
-    FCodeList.Text := ACode;
+    if (lbStyleSetting.Text<>'Pascal') OR (ExtractFileExt(FSelectedFrame.lbFilename.Text)='.fmx') then //OR (FSelectedMemo.Lines.Text='') then
+     begin
+      ASourceCode := '';
+     end
+    else
+     ASourceCode := ACode;
+    
+     
+    if FCodeList.Text.Contains(ASourceCode) then
+        Exit;
+    FCodeList.Text := ASourceCode;
     if Assigned(LTask) then
-        exit;
+        Exit;
     LTask := TTask.Create(
         procedure
         var

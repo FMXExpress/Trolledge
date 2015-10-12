@@ -190,7 +190,7 @@ object MemoFrame: TMemoFrame
     TrimTrailingSpaces = False
     UseStyler = True
     UrlAware = False
-    Version = '1.5.2.2'
+    Version = '1.5.2.5'
     WantTab = True
     OnCursorChange = TMSFMXMemo1CursorChange
   end
@@ -207,8 +207,9 @@ object MemoFrame: TMemoFrame
     object lbGoToHint: TLabel
       Align = Top
       Size.Width = 572.000000000000000000
-      Size.Height = 17.000000000000000000
+      Size.Height = 16.000000000000000000
       Size.PlatformDefault = False
+      TextSettings.WordWrap = False
       Text = 'lbGoToHint'
     end
     object ListView1: TListView
@@ -219,7 +220,7 @@ object MemoFrame: TMemoFrame
       Align = Client
       Margins.Top = 4.000000000000000000
       Size.Width = 572.000000000000000000
-      Size.Height = 227.000000000000000000
+      Size.Height = 228.000000000000000000
       Size.PlatformDefault = False
       TabOrder = 1
       OnKeyDown = ListView1KeyDown
@@ -229,7 +230,7 @@ object MemoFrame: TMemoFrame
       Touch.InteractiveGestures = [LongTap, DoubleTap]
       Align = Top
       TabOrder = 2
-      Position.Y = 17.000000000000000000
+      Position.Y = 16.000000000000000000
       Size.Width = 572.000000000000000000
       Size.Height = 22.000000000000000000
       Size.PlatformDefault = False

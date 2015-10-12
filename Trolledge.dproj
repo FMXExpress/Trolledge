@@ -6,7 +6,7 @@
         <MainSource>Trolledge.dpr</MainSource>
         <Base>True</Base>
         <Config Condition="'$(Config)'==''">Release</Config>
-        <Platform Condition="'$(Platform)'==''">OSX32</Platform>
+        <Platform Condition="'$(Platform)'==''">Win32</Platform>
         <TargetedPlatforms>1119</TargetedPlatforms>
         <AppType>Application</AppType>
     </PropertyGroup>
@@ -299,10 +299,12 @@
         <BT_BuildType>Debug</BT_BuildType>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_1_Win32)'!=''">
+        <VerInfo_Release>2</VerInfo_Release>
+        <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <DCC_UnitSearchPath>C:\D\ChromiumFMX;C:\D\paxCompiler\Sources;.\Source;.\Source\AST;.\Source\AST\SimpleParser;.\Source\OXML\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
-        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.0.0;InternalName=Trolledge.exe;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=1.0.0.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.2.0;InternalName=Trolledge.exe;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=0.5.2.0;Comments=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_RemoteDebug>false</DCC_RemoteDebug>
@@ -314,8 +316,8 @@
         <DCC_DebugInformation>0</DCC_DebugInformation>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_OSX32)'!=''">
-        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=0.51.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user</VerInfo_Keys>
-        <VerInfo_MinorVer>51</VerInfo_MinorVer>
+        <VerInfo_Keys>CFBundleName=$(MSBuildProjectName);CFBundleDisplayName=$(MSBuildProjectName);CFBundleIdentifier=$(MSBuildProjectName);CFBundleVersion=0.52.0;CFBundlePackageType=APPL;CFBundleSignature=????;CFBundleAllowMixedLocalizations=YES;CFBundleExecutable=$(MSBuildProjectName);NSHighResolutionCapable=true;LSApplicationCategoryType=public.app-category.utilities;NSLocationAlwaysUsageDescription=The reason for accessing the location information of the user;NSLocationWhenInUseUsageDescription=The reason for accessing the location information of the user</VerInfo_Keys>
+        <VerInfo_MinorVer>52</VerInfo_MinorVer>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
         <BT_BuildType>Debug</BT_BuildType>
         <Debugger_Launcher>/usr/X11/bin/xterm -e &quot;%debuggee%&quot;</Debugger_Launcher>
@@ -325,20 +327,20 @@
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win32)'!=''">
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
-        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.1.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=0.5.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.2.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=0.5.2.0;Comments=</VerInfo_Keys>
         <VerInfo_IncludeVerInfo>true</VerInfo_IncludeVerInfo>
         <VerInfo_Locale>1033</VerInfo_Locale>
-        <DCC_UnitSearchPath>C:\D\ChromiumFMX;C:\D\paxCompiler\Sources;C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\Source\OXML\units;C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\Source;C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\Source\AST;C:\Users\Anonymous\Documents\Embarcadero\Studio\Projects\CodeEditor\Trollegde_v150\Source\AST\SimpleParser;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
+        <DCC_UnitSearchPath>C:\D\paxCompiler\Sources;C:\D\ChromiumFMX;.\Source;.\Source\AST;.\Source\AST\SimpleParser;.\Source\OXML\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Cfg_2_Win64)'!=''">
-        <VerInfo_Release>1</VerInfo_Release>
+        <VerInfo_Release>2</VerInfo_Release>
         <AppEnableRuntimeThemes>true</AppEnableRuntimeThemes>
         <VerInfo_MinorVer>5</VerInfo_MinorVer>
         <VerInfo_MajorVer>0</VerInfo_MajorVer>
-        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.1.0;InternalName=Trolledge;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=0.5.1.0;Comments=</VerInfo_Keys>
+        <VerInfo_Keys>CompanyName=;FileDescription=Trolledge;FileVersion=0.5.2.0;InternalName=Trolledge;LegalCopyright=;LegalTrademarks=;OriginalFilename=Trolledge;ProductName=Trolledge;ProductVersion=0.5.2.0;Comments=</VerInfo_Keys>
         <VerInfo_Locale>1033</VerInfo_Locale>
         <DCC_UseMSBuildExternally>true</DCC_UseMSBuildExternally>
         <DCC_UnitSearchPath>C:\D\paxCompiler\Sources;C:\D\ChromiumFMX;.\Source;.\Source\AST;.\Source\AST\SimpleParser;.\Source\OXML\units;$(DCC_UnitSearchPath)</DCC_UnitSearchPath>

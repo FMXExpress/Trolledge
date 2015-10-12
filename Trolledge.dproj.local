@@ -113,6 +113,6 @@
   </ProjectSortOrder>
 	<ActiveMobileDevice>
 		<NoProfile Android="077b7f1d"/>
-		<P192.168.1.51 iOSSimulator="iPhone5"/>
+		<P192.168.1.51 iOSSimulator="_iossimulator_58CD75E8-21F4-4796-BEF7-58C16017B254" iOSDevice64="_iosdevice_e8097e6db2ddf3b45ce643ca9158dfedfcf44689" iOSDevice32="_iosdevice_e8097e6db2ddf3b45ce643ca9158dfedfcf44689"/>
 	</ActiveMobileDevice>
 </BorlandProject>

@@ -27,7 +27,7 @@ type
   end;
 
 const
-  CFileTypeArray: array[0..49] of TExtentionData =
+  CFileTypeArray: array[0..77] of TExtentionData =
   (
     //.jpeg;.jpg;.jpe;.tif;.tiff;.png;.bmp;.ico;.gif
     (FileType: ftImage; FileExt: '.jpeg'), (FileType: ftImage; FileExt: '.jpg'),
@@ -49,11 +49,26 @@ const
     (FileType: ftScript; FileExt: '.dpk'), (FileType: ftScript; FileExt: '.dfm'),
     (FileType: ftScript; FileExt: '.fmx'), (FileType: ftScript; FileExt: '.inc'),
     (FileType: ftScript; FileExt: '.lpr'), (FileType: ftScript; FileExt: '.spr'),
+    //other
     (FileType: ftScript; FileExt: '.cpp'), (FileType: ftScript; FileExt: '.h'),
     (FileType: ftScript; FileExt: '.bas'), (FileType: ftScript; FileExt: '.cs'),
     (FileType: ftScript; FileExt: '.js'),  (FileType: ftScript; FileExt: '.java'),
     (FileType: ftScript; FileExt: '.css'), (FileType: ftScript; FileExt: '.xml'),
-    (FileType: ftScript; FileExt: '.php'),
+    (FileType: ftScript; FileExt: '.php'),(FileType: ftScript; FileExt: '.c'),
+    (FileType: ftScript; FileExt: '.hpp'),(FileType: ftScript; FileExt: '.xfm'),
+    (FileType: ftScript; FileExt: '.bpg'),(FileType: ftScript; FileExt: '.bpk'),
+    (FileType: ftScript; FileExt: '.m'),(FileType: ftScript; FileExt: '.plist'),
+    (FileType: ftScript; FileExt: '.xcscheme'),(FileType: ftScript; FileExt: '.xcbkptlist'),
+    (FileType: ftScript; FileExt: '.xcworkspacedata'),(FileType: ftScript; FileExt: '.json'),
+    (FileType: ftScript; FileExt: '.xib'),(FileType: ftScript; FileExt: '.storyboard'),
+    (FileType: ftScript; FileExt: '.sh'),(FileType: ftScript; FileExt: '.txt'),
+    (FileType: ftScript; FileExt: '.log'),(FileType: ftScript; FileExt: '.log'),
+    (FileType: ftScript; FileExt: '.htm'),(FileType: ftScript; FileExt: '.html'),
+    (FileType: ftScript; FileExt: '.pbxproj'),(FileType: ftScript; FileExt: '.pl'),
+    (FileType: ftScript; FileExt: '.bat'),(FileType: ftScript; FileExt: '.vcproj'),
+    (FileType: ftScript; FileExt: '.def'),(FileType: ftScript; FileExt: '.gitignore'),
+    (FileType: ftScript; FileExt: '.am'),(FileType: ftScript; FileExt: '.csv'),
+    (FileType: ftScript; FileExt: '.mk'),
     //dproj;deployproj;lpi;sproj;dsk;sfm;stat;todo;vlb
     (FileType: ftScript; FileExt: '.dproj'),(FileType: ftScript; FileExt: '.deployproj'),
     (FileType: ftScript; FileExt: '.lpi'),  (FileType: ftScript; FileExt: '.sproj'),
