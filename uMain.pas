@@ -890,8 +890,9 @@ begin
       end
     );
 
-    Application.ProcessMessages;
-    VictimFrame.TMSFMXMemo1.Lines.Clear;
+    //Application.ProcessMessages;
+    //VictimFrame.TMSFMXMemo1.Lines.Clear;
+    VictimFrame.TMSFMXMemo1.Lines.Text := string.Empty;
     VictimFrame.TMSFMXMemo1.ClearUndoRedo;
 
     ParseTimer.Enabled := True;
@@ -2552,7 +2553,10 @@ begin
       begin
         LItem.Stream.Seek(0, TSeekOrigin.soBeginning);
         if LItem.Stream.Size = 0 then
-          FSelectedMemo.Lines.Clear
+        begin
+          //FSelectedMemo.Lines.Clear
+          FSelectedMemo.Lines.Text := string.Empty;
+        end
         else
           FSelectedMemo.Lines.LoadFromStream(LItem.Stream);
         FSelectedMemo.SyntaxStyles := LItem.Styler;
@@ -3047,7 +3051,8 @@ begin
     FSelectedFrame.ImageViewer1.Bitmap.LoadFromFile(AFileName);
     ShowFileName(AFileName);
     FSelectedMemo.Visible := False;
-    FSelectedMemo.Lines.Clear;
+    //FSelectedMemo.Lines.Clear;
+    FSelectedMemo.Lines.Text := string.Empty;
     FSelectedFrame.pnlMemoFind.Visible := False;
     FSelectedFrame.treeZipView.Visible := False;
     if not FSelectedFrame.ImageViewer1.Visible then
