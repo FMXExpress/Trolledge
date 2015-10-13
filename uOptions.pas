@@ -13,6 +13,8 @@ uses
   {$IFDEF MSWINDOWS}
   , FMX.Platform.Win
   {$ENDIF}
+  , FMX.ListView.Types, FMX.ListView.Appearances,
+  FMX.ListView.Adapters.Base, FMX.ListView
   ;
 
 const
@@ -61,12 +63,18 @@ type
     BGRect: TRectangle;
     GreenRect: TRectangle;
     chkAutoOpen: TCheckBox;
+    lvPlugins: TListView;
+    lytBtn: TLayout;
+    btnAdd: TButton;
+    btnEdit: TButton;
+    btnRemove: TButton;
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
     procedure cbStylesListChange(Sender: TObject);
     procedure chkGutterVisibleClick(Sender: TObject);
     procedure chkMemoRightMarginClick(Sender: TObject);
     procedure btnSearchPathClick(Sender: TObject);
+    procedure lvPluginsChange(Sender: TObject);
   private
     { Private declarations }
     procedure ShowStylerStyles(AStylerName: string);
@@ -139,7 +147,17 @@ end;
 procedure TOptionsFrame.FormShow(Sender: TObject);
 begin
   cbStylesList.ItemIndex := 0;
+  self.TabControl1.TabIndex := 0;
  // ShowStylerStyles('Pascal');
+end;
+
+procedure TOptionsFrame.lvPluginsChange(Sender: TObject);
+var
+    LCanEdit : Boolean;
+begin
+    LCanEdit := TListView(Sender).ItemCount > 0;
+    btnEdit.Enabled := LCanEdit;
+    btnRemove.Enabled := LCanEdit;
 end;
 
 procedure TOptionsFrame.ShowStylerStyles(AStylerName: string);

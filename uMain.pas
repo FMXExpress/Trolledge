@@ -194,11 +194,6 @@ type
     actEditPlugin: TAction;
     actLoadPlugin: TAction;
     actSavePlugin: TAction;
-    pmPlugins: TPopupMenu;
-    menuAddPlugin: TMenuItem;
-    menuEditPlugin: TMenuItem;
-    menuLoadPlugin: TMenuItem;
-    menuSavePlugin: TMenuItem;
     dlgOpenPlugin: TOpenDialog;
     actExplore: TAction;
     MemoPopup: TPopupMenu;
@@ -297,6 +292,7 @@ type
     actCSS: TAction;
     actSQL: TAction;
     actPlain: TAction;
+    actRemovePlugin: TAction;
     procedure FormCreate(Sender: TObject);
     procedure actOpenFolderExecute(Sender: TObject);
     procedure actSaveFileExecute(Sender: TObject);
@@ -411,6 +407,7 @@ type
     procedure actCPPExecute(Sender: TObject);
     procedure actPASExecute(Sender: TObject);
     procedure TreeView2Click(Sender: TObject);
+    procedure actRemovePluginExecute(Sender: TObject);
   private
     { Private declarations }
     //--------------------------------------------------------------------------
@@ -485,12 +482,16 @@ type
     procedure UpdateImages(AImageList: TImagelist);
     procedure UpdateActiveProjectDir;
     //------------------------------------- Plugins ----------------------------
-    procedure PluginLoadListView;
+    procedure PluginChange(Sender: TObject; const Item: TPlugin;
+        Action: TCollectionNotification);
+    procedure PluginLoadListView; overload;
+    procedure PluginLoadListView(const ALv : TListView); overload;
     procedure PluginAdd;
     procedure PluginEdit;
     procedure PluginLoad;
     procedure PluginOpen;
     procedure PluginSave;
+    procedure PluginRemove;
     procedure ShowPluginsPanel(AVisible: boolean);
     //------------------------------------- Help (About) -----------------------
     procedure ShowAbout;
@@ -574,6 +575,8 @@ type
     procedure ShowCaption;
     procedure SaveOptionsFrame(FOK: Boolean);
     procedure CloseOptionsFrame;
+
+    property Plugins : TPlugins read FPlugins;
   end;
 
 var
@@ -698,7 +701,7 @@ end;
 
 procedure TfrmMain.lvPluginsChange(Sender: TObject);
 begin
-  FPlugins.ItemIndex := lvPlugins.ItemIndex;
+  FPlugins.ItemIndex := TListView(Sender).ItemIndex;
 end;
 
 procedure TfrmMain.lvPluginsDblClick(Sender: TObject);
@@ -709,7 +712,7 @@ end;
 procedure TfrmMain.lvPluginsItemClick(const Sender: TObject;
   const AItem: TListViewItem);
 begin
-  FPlugins.ItemIndex := lvPlugins.ItemIndex;
+  FPlugins.ItemIndex := TListView(Sender).ItemIndex;
   //actOpenPluginExecute(Sender);
 end;
 
@@ -1107,6 +1110,11 @@ procedure TfrmMain.actRedoUpdate(Sender: TObject);
 begin
  if FSelectedMemo <> nil then
   actRedo.Enabled := FSelectedMemo.CanRedo;
+end;
+
+procedure TfrmMain.actRemovePluginExecute(Sender: TObject);
+begin
+    PluginRemove;
 end;
 
 procedure TfrmMain.OpenFile(const AFileName: String);
@@ -1701,7 +1709,14 @@ begin
   rectAbout.Visible := False;
   pnlSearchOption.Visible := False;
   FPlugins := TPlugins.Create(uPluginUtils.GetPath + CFilePlugins);
-  FPlugins.FileName := uPluginUtils.GetPath + CFilePlugins;
+  //FPlugins.FileName := uPluginUtils.GetPath + CFilePlugins;
+  FPlugins.OnNotify := self.PluginChange;
+  FPlugins.OnChangeCurrent :=
+    procedure (AIndex : Integer)
+    begin
+      lvPlugins.ItemIndex := AIndex;
+      FrameOptions.lvPlugins.ItemIndex := AIndex;
+    end;
   PluginLoadListView;
 
   // --------------- auto completion code -------------------------------
@@ -1809,7 +1824,7 @@ begin
     if fPluginEdit.ShowModal = mrOk then
     begin
       FPlugins.Add(fPluginEdit.FPlugin);
-      PluginLoadListView;
+      //PluginLoadListView;
     end;
   finally
     FreeAndNil(fPluginEdit);
@@ -1838,22 +1853,34 @@ begin
     FPlugins.FileName := dlgOpenPlugin.Filename;
 end;
 
+procedure TfrmMain.PluginChange(Sender: TObject; const Item: TPlugin;
+        Action: TCollectionNotification);
+begin
+    PluginLoadListView;
+end;
+
 procedure TfrmMain.PluginLoadListView;
+begin
+  PluginLoadListView(lvPlugins);
+  PluginLoadListView(FrameOptions.lvPlugins);
+end;
+
+procedure TfrmMain.PluginLoadListView(const ALv : TListView);
 var
   Plugin: TPlugin;
   Item: TListViewItem;
 begin
-  lvPlugins.BeginUpdate;
+  ALv.BeginUpdate;
   try
-    lvPlugins.Items.Clear;
+    ALv.Items.Clear;
     for Plugin in FPlugins do
     begin
-      Item := lvPlugins.Items.Add;
+      Item := ALv.Items.Add;
       Item.Text := Plugin.FName;
       Item.Bitmap := Plugin.FIcon;
     end;
   finally
-    lvPlugins.EndUpdate;
+    ALv.EndUpdate;
   end;
 end;
 
@@ -1890,6 +1917,12 @@ begin
   }
 end;
 
+procedure TfrmMain.PluginRemove;
+begin
+  FPlugins.RemoveCurrent;
+  //PluginLoadListView;
+end;
+
 procedure TfrmMain.PluginSave;
 begin
   FPlugins.SaveToFile;
@@ -1897,7 +1930,7 @@ end;
 
 procedure TfrmMain.pmPluginsPopup(Sender: TObject);
 begin
-  menuEditPlugin.Visible := lvPlugins.ItemIndex <> -1;
+  //menuEditPlugin.Visible := lvPlugins.ItemIndex <> -1;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -1919,6 +1952,7 @@ begin
   FilesTree.Free;
   WorkFilesTree.Free;
   //AutocompleteDrop;
+  FPlugins.OnNotify := nil;
   FPlugins.SaveToFile;
   FreeAndNil(FPlugins);
 
@@ -1947,12 +1981,12 @@ end;
 
 procedure TfrmMain.FrameOptionsButton1Click(Sender: TObject);
 begin
-SaveOptionsFrame(True);
+    SaveOptionsFrame(True);
 end;
 
 procedure TfrmMain.FrameOptionsButton2Click(Sender: TObject);
 begin
-CloseOptionsFrame;
+    CloseOptionsFrame;
 end;
 
 procedure TfrmMain.CloseOptionsFrame;

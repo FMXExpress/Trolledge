@@ -7,7 +7,7 @@ uses
     FMX.Graphics, FMX.Features.BitmapHelper,
     uPluginUtils;
 type
-    TProcInt = procedure (index : Integer) of object;
+    TProcInt = TProc<Integer>;
 
     TPlugin = class
     public
@@ -22,6 +22,7 @@ type
             INT_DEFAULT_INDEX : Integer = -1;
             ARRAY_PARSE : array of string = ['name', 'icon', 'type', 'path'];
             temp : string = '89*78_03';//for load json from path
+    public
         constructor Create;
         destructor Destroy; override;
         function LoadFromJson(AJSONValue : TJSONValue) : Boolean;
@@ -35,6 +36,7 @@ type
         FFileName : string;
         function GetCurrent: TPlugin;
         function LoadFromFile(fileName : string) : Boolean;
+        function GetIsEmpty : Boolean;
         procedure SetCurrent(const Value: TPlugin);
         procedure SetItemIndex(const Value: Integer);
         procedure SetFileName(const Value: string);
@@ -43,6 +45,7 @@ type
             INT_DEFAULT_INDEX : Integer = -1;
             ARRAY_TYPES : array of string = ['url', 'plugin'];//temp
             temp : string = '89*78_03';//for load json from path
+    public
         class var
             FTypes : TStringList;
     public
@@ -55,11 +58,15 @@ type
         function SaveToJson(var sJson : string) : Boolean;
         function SaveToArray : TArray<string>;
         function SaveToFile : Boolean;
+        function Add(const Value: TPlugin): Integer;
+
+        procedure RemoveCurrent;
 
         property Current : TPlugin read GetCurrent write SetCurrent;
         property ItemIndex: Integer read FItemIndex write SetItemIndex default -1;
         property OnChangeCurrent : TProcInt read FOnChangeCurrent write FOnChangeCurrent;
         property FileName : string read FFileName write SetFileName;
+        property IsEmpty : Boolean read GetIsEmpty;
     end;
 
 implementation
@@ -77,6 +84,12 @@ begin
         FTypes.Add(item);
 end;
 {------------------------------------------------------------------------------}
+function TPlugins.Add(const Value: TPlugin): Integer;
+begin
+    Result := inherited;
+    ItemIndex := self.Count - 1;
+end;
+
 constructor TPlugins.Create(fileName: string);
 begin
     Create;
@@ -113,6 +126,11 @@ begin
     finally
         FreeAndNil(st);
     end;
+end;
+{------------------------------------------------------------------------------}
+function TPlugins.GetIsEmpty : Boolean;
+begin
+    Result := self.Count > 0;
 end;
 {------------------------------------------------------------------------------}
 function TPlugins.LoadFromJson(AJSONValue: string): Boolean;
@@ -214,6 +232,17 @@ begin
         ItemIndex := INT_DEFAULT_INDEX
     else
         ItemIndex := IndexOf(Value);
+end;
+{------------------------------------------------------------------------------}
+procedure TPlugins.RemoveCurrent;
+begin
+    if not Assigned(self.Current) then
+        exit;
+    self.Remove(self.Current);
+    if not IsEmpty then
+        self.Current := self.Last
+    else
+        self.Current := nil;
 end;
 {------------------------------------------------------------------------------}
 procedure TPlugins.SetFileName(const Value: string);
