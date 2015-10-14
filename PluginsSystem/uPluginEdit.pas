@@ -7,7 +7,7 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Dialogs,
   uPlugin, FMX.StdCtrls, FMX.Controls.Presentation, FMX.Edit, FMX.ListBox,
   FMX.Objects, FMX.Layouts, System.Actions, FMX.ActnList, FMX.StdActns,
-  FMX.MediaLibrary.Actions;
+  FMX.MediaLibrary.Actions, FMX.ScrollBox, FMX.Memo;
 
 type
   TfPluginEdit = class(TForm)
@@ -22,6 +22,7 @@ type
     btnLoadImage: TButton;
     dlgOpen: TOpenDialog;
     btnAddScript: TButton;
+    mmoScript: TMemo;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure btnLoadImageClick(Sender: TObject);
@@ -48,10 +49,12 @@ uses
 {------------------------------------------------------------------------------}
 procedure TfPluginEdit.btnAddScriptClick(Sender: TObject);
 begin
+    dlgOpen.Filter := 'Scripts|*.pas';
   {$IFDEF MACOS}
     if dlgOpen.Execute then
     begin
         txtPath.Text := dlgOpen.FileName;
+        mmoScript.Lines.LoadFromFile(dlgOpen.FileName);
     end;
     exit;
   {$ENDIF}
@@ -59,6 +62,7 @@ begin
     if dlgOpen.Execute then
     begin
         txtPath.Text := dlgOpen.FileName;
+        mmoScript.Lines.LoadFromFile(dlgOpen.FileName);
     end;
   {$ENDIF}
 end;
@@ -67,6 +71,7 @@ procedure TfPluginEdit.btnLoadImageClick(Sender: TObject);
 var
     sJson, encodeString : string;
 begin
+    dlgOpen.Filter := 'Icons|*.png';
   {$IFDEF MACOS}
     if dlgOpen.Execute then
     begin
@@ -90,11 +95,17 @@ begin
     FPlugin.FIcon.Assign(img.Bitmap);
     FPlugin.FPath := txtPath.Text;
     FPlugin.FType := cbbTypes.ItemIndex;
+    FPlugin.FScript := mmoScript.Text;
 end;
 {------------------------------------------------------------------------------}
 procedure TfPluginEdit.cbbTypesChange(Sender: TObject);
+var
+    isPlugin : Boolean;
 begin
-    btnAddScript.Visible := cbbTypes.ItemIndex = 1;
+    isPlugin := cbbTypes.ItemIndex = 1;
+    btnAddScript.Visible := isPlugin;
+    mmoScript.Visible := isPlugin;
+    txtPath.ReadOnly := isPlugin;
 end;
 {------------------------------------------------------------------------------}
 procedure TfPluginEdit.FormCreate(Sender: TObject);
@@ -118,7 +129,6 @@ begin
   if Key = vkEscape then
     ModalResult := mrCancel;
 end;
-
 {------------------------------------------------------------------------------}
 procedure TfPluginEdit.LoadPLugin(pPlugin : Pointer);
 var
@@ -132,6 +142,7 @@ begin
     img.Bitmap.Assign(FPlugin.FIcon);
     txtPath.Text := FPlugin.FPath;
     cbbTypes.ItemIndex := FPlugin.FType;
+    mmoScript.Text := FPlugin.FScript;
 end;
 {------------------------------------------------------------------------------}
 end.

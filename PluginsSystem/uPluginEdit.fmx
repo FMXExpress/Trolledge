@@ -130,4 +130,16 @@ object fPluginEdit: TfPluginEdit
     Left = 232
     Top = 280
   end
+  object mmoScript: TMemo
+    Touch.InteractiveGestures = [Pan, LongTap, DoubleTap]
+    DataDetectorTypes = []
+    ReadOnly = True
+    Align = Client
+    Size.Width = 462.000000000000000000
+    Size.Height = 273.000000000000000000
+    Size.PlatformDefault = False
+    TabOrder = 3
+    Viewport.Width = 458.000000000000000000
+    Viewport.Height = 269.000000000000000000
+  end
 end

@@ -4,6 +4,7 @@ interface
 uses
     System.JSON, System.StrUtils, System.Generics.Defaults, System.Generics.Collections,
     System.SysUtils, System.Math, System.Classes, System.IOUtils,
+    Soap.EncdDecd,
     FMX.Graphics, FMX.Features.BitmapHelper,
     uPluginUtils;
 type
@@ -17,16 +18,22 @@ type
         FIcon : TBitmap;
         FIndex : Integer;
         FChanged : Boolean;
+        FScript : string;
     public
         const
             INT_DEFAULT_INDEX : Integer = -1;
-            ARRAY_PARSE : array of string = ['name', 'icon', 'type', 'path'];
-            temp : string = '89*78_03';//for load json from path
+            temp : string = '89*78_03';
+            tempa : string = '89*78_04_04';
+            tempas : string = '89*78_05_04';
+    private
+        function GetScript: string;
+        procedure SetScript(const Value: string);
     public
         constructor Create;
         destructor Destroy; override;
         function LoadFromJson(AJSONValue : TJSONValue) : Boolean;
         function SaveToJson(var AJSONObject : TJSONObject) : Boolean;
+        property Script : string read GetScript write SetScript;
     end;
 
     TPlugins = class(TList<TPlugin>)
@@ -43,7 +50,6 @@ type
     public
         const
             INT_DEFAULT_INDEX : Integer = -1;
-            ARRAY_TYPES : array of string = ['url', 'plugin'];//temp
             temp : string = '89*78_03';//for load json from path
     public
         class var
@@ -69,6 +75,9 @@ type
         property IsEmpty : Boolean read GetIsEmpty;
     end;
 
+const
+    ARRAY_PARSE : array of string = ['name', 'icon', 'type', 'path', 'script'];
+    ARRAY_TYPES : array of string = ['url', 'plugin'];//temp
 implementation
 
 { TPlugins }
@@ -121,7 +130,7 @@ begin
         if not TFile.Exists(fileName) then
             Exit;
         st.LoadFromFile(fileName);
-        text := AnsiReplaceText(st.Text, temp, '\');
+        text := st.Text;
         Result := self.LoadFromJson(text);
     finally
         FreeAndNil(st);
@@ -135,6 +144,7 @@ end;
 {------------------------------------------------------------------------------}
 function TPlugins.LoadFromJson(AJSONValue: string): Boolean;
 begin
+    AJSONValue := DecodeString(AJSONValue);
     Result := LoadFromJson(TJSONObject.ParseJSONValue(AJSONValue));
 end;
 {------------------------------------------------------------------------------}
@@ -220,6 +230,7 @@ begin
             if plugin.SaveToJson(temp) then
                 JsonArray.Add(temp);
         sJson := JsonArray.ToString;
+        sJson := EncodeString(sJson);
         Result := True;
     finally
         FreeAndNil(JsonArray);
@@ -277,12 +288,24 @@ begin
   inherited;
 end;
 {------------------------------------------------------------------------------}
+function TPlugin.GetScript: string;
+var
+    text : string;
+begin
+    if FScript.IsEmpty then
+        Exit(string.Empty);
+    {text := AnsiReplaceText(FScript, ' ', temp);
+    text := AnsiReplaceText(text, #13#10, tempa);
+    text := AnsiReplaceText(text, ',', tempas);}
+    Result := EncodeString(Fscript);
+end;
+{------------------------------------------------------------------------------}
 function TPlugin.LoadFromJson(AJSONValue: TJSONValue): Boolean;
 var
     Enums: TJSONPairEnumerator;
     tempJson : TJSONObject;
     FoundIndex : Integer;
-    decodeIcon : string;
+    decodeIcon, lScript : string;
 begin
     try
         if uPluginUtils.ValidateJSONObject(AJSONValue, tempJson) then
@@ -291,7 +314,10 @@ begin
         if tempJson.TryGetValue<string>(ARRAY_PARSE[1], decodeIcon) then
             self.FIcon.Base64 := decodeIcon;
         tempJson.TryGetValue<Integer>(ARRAY_PARSE[2], self.FType);
-        tempJson.TryGetValue<string>(ARRAY_PARSE[3], self.FPath);
+        if tempJson.TryGetValue<string>(ARRAY_PARSE[3], self.FPath) then
+            self.FPath := AnsiReplaceText(self.FPath, temp, '\');
+        if tempJson.TryGetValue<string>(ARRAY_PARSE[4], lScript) then
+            self.Script := lScript;
         FIndex := INT_DEFAULT_INDEX;
         FChanged := True;
         Result := true;
@@ -310,8 +336,14 @@ begin
     AJSONObject.AddPair(ARRAY_PARSE[0], FName);
     AJSONObject.AddPair(ARRAY_PARSE[2], integer.ToString(FType));
     AJSONObject.AddPair(ARRAY_PARSE[3], AnsiReplaceText(FPath, '\', temp));
+    AJSONObject.AddPair(ARRAY_PARSE[4], Script);
     AJSONObject.AddPair(ARRAY_PARSE[1], encodeIcon); //Convenient viewing file
     Result := True;
+end;
+{------------------------------------------------------------------------------}
+procedure TPlugin.SetScript(const Value: string);
+begin
+    FScript := DecodeString(Value);
 end;
 {------------------------------------------------------------------------------}
 end.
