@@ -13415,7 +13415,9 @@ object frmMain: TfrmMain
         inherited TabControl1: TTabControl
           Size.Width = 640.562255859375000000
           Size.Height = 382.435211181640600000
+          TabIndex = 0
           inherited tbiGeneral: TTabItem
+            IsSelected = True
             Size.Height = 21.000000000000000000
             ExplicitSize.cx = 60.000000000000000000
             ExplicitSize.cy = 24.000000000000000000
@@ -13461,37 +13463,19 @@ object frmMain: TfrmMain
                 Viewport.Width = 545.600000000000000000
                 Viewport.Height = 181.700000000000000000
               end
+              inherited Layout1: TLayout
+                Size.Width = 18.000000000000000000
+                inherited cbStylesList: TComboBox
+                  Size.Width = 0.000000000000000000
+                end
+              end
             end
           end
           inherited tbiPlugins: TTabItem
+            IsSelected = False
             Size.Height = 21.000000000000000000
             ExplicitSize.cx = 58.000000000000000000
             ExplicitSize.cy = 24.000000000000000000
-            inherited lvPlugins: TListView
-              Margins.Left = 10.000000000000000000
-              Margins.Right = 10.000000000000000000
-              Size.Width = 620.562255859375000000
-              Size.Height = 301.435211181640600000
-              OnClick = lvPluginsChange
-              OnChange = lvPluginsChange
-              OnItemClick = lvPluginsItemClick
-            end
-            inherited lytBtn: TLayout
-              Position.Y = 311.435211181640600000
-              Size.Width = 640.562255859375000000
-              inherited btnAdd: TButton
-                Action = actAddPlugin
-                Position.X = 376.562255859375000000
-              end
-              inherited btnEdit: TButton
-                Action = actEditPlugin
-                Position.X = 464.562255859375000000
-              end
-              inherited btnRemove: TButton
-                Action = actRemovePlugin
-                Position.X = 552.562255859375000000
-              end
-            end
           end
         end
         inherited BottomLayout: TLayout

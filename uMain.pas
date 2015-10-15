@@ -864,6 +864,10 @@ begin
     end;
 
     VictimFrame.Visible := False;
+    //Application.ProcessMessages;
+    //VictimFrame.TMSFMXMemo1.Lines.Clear;
+    VictimFrame.TMSFMXMemo1.Lines.Text := string.Empty;
+    VictimFrame.TMSFMXMemo1.ClearUndoRedo;
     VictimFrame.FMemoChanged := False;
     VictimFrame.FPredFileName := EmptyStr;
 
@@ -892,11 +896,6 @@ begin
          end;
       end
     );
-
-    //Application.ProcessMessages;
-    //VictimFrame.TMSFMXMemo1.Lines.Clear;
-    VictimFrame.TMSFMXMemo1.Lines.Text := string.Empty;
-    VictimFrame.TMSFMXMemo1.ClearUndoRedo;
 
     ParseTimer.Enabled := True;
   end;
@@ -3620,7 +3619,7 @@ var
     LTask : ITask;
     ASourceCode: String;
 begin
-    if (lbStyleSetting.Text<>'Pascal') OR (ExtractFileExt(FSelectedFrame.lbFilename.Text)='.fmx') then //OR (FSelectedMemo.Lines.Text='') then
+    if (lbStyleSetting.Text<>'Pascal') OR (ExtractFileExt(FSelectedFrame.lbFilename.Text)='.fmx') then
      begin
       ASourceCode := '';
      end
@@ -3651,12 +3650,15 @@ begin
             end;
             LmSecCount := MilliSecondsBetween(Now, LNow);
             if FSelectedMemo<>nil then
-              if FSelectedMemo.Popup.Visible=False then
+              if (FSelectedMemo.Popup.Visible=False) AND (FSelectedMemo.Lines.Text<>'') then
                begin
                 TThread.Queue(nil,
                     procedure
                     begin
-                        lblCompile.Text := LText + ' Time : ' + string.Parse(LmSecCount);
+                        try
+                          lblCompile.Text := LText + ' Time : ' + string.Parse(LmSecCount);
+                        except
+                        end;
                     end);
                end;
         end

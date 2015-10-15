@@ -7980,9 +7980,6 @@ inherited frmMain_LgXhdpiTb: TfrmMain_LgXhdpiTb
             ExplicitSize.cx = 85.000000000000000000
             ExplicitSize.cy = 24.000000000000000000
             inherited GroupBox2: TGroupBox
-              inherited cbStylesList: TComboBox
-                Size.Width = 97.000000000000000000
-              end
               inherited ScrollBox1: TScrollBox
                 Viewport.Width = 545.600000000000000000
                 Viewport.Height = 181.700000000000000000
