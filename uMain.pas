@@ -1861,7 +1861,7 @@ end;
 procedure TfrmMain.PluginLoadListView;
 begin
   PluginLoadListView(lvPlugins);
-  PluginLoadListView(FrameOptions.lvPlugins);
+  //PluginLoadListView(FrameOptions.lvPlugins);
 end;
 
 procedure TfrmMain.PluginLoadListView(const ALv : TListView);
