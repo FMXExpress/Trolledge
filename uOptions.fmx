@@ -63,13 +63,13 @@ object OptionsFrame: TOptionsFrame
         TabIndex = 0
         TabOrder = 0
         TabPosition = PlatformDefault
+        OnChange = TabControl1Change
         object tbiGeneral: TTabItem
           CustomIcon = <
             item
             end>
           IsSelected = True
-          Size.Width = 60.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -82,7 +82,7 @@ object OptionsFrame: TOptionsFrame
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
             Position.X = 8.000000000000000000
-            Position.Y = 247.691680908203100000
+            Position.Y = 268.691680908203100000
             Size.Width = 561.585632324218800000
             Size.Height = 134.000000000000000000
             Size.PlatformDefault = False
@@ -175,7 +175,7 @@ object OptionsFrame: TOptionsFrame
             Position.X = 8.000000000000000000
             Position.Y = 4.000000000000000000
             Size.Width = 289.000000000000000000
-            Size.Height = 243.691680908203100000
+            Size.Height = 264.691680908203100000
             Size.PlatformDefault = False
             Text = ' Tab Settings '
             TabOrder = 2
@@ -234,7 +234,7 @@ object OptionsFrame: TOptionsFrame
             Margins.Top = 4.000000000000000000
             Margins.Right = 8.000000000000000000
             Size.Width = 264.585632324218800000
-            Size.Height = 243.691680908203100000
+            Size.Height = 264.691680908203100000
             Size.PlatformDefault = False
             Text = ' Miscellaneous '
             TabOrder = 0
@@ -272,8 +272,7 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 49.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -291,13 +290,13 @@ object OptionsFrame: TOptionsFrame
             TabOrder = 1
             Position.X = 16.000000000000000000
             Position.Y = 32.000000000000000000
-            Size.Width = 2609.928222656250000000
+            Size.Width = 1027.171142578125000000
             Size.Height = 22.000000000000000000
             Size.PlatformDefault = False
           end
           object btnSearchPath: TButton
             Anchors = [akTop, akRight]
-            Position.X = 2632.928222656250000000
+            Position.X = 1050.171142578125000000
             Position.Y = 32.000000000000000000
             Size.Width = 40.000000000000000000
             Size.Height = 22.000000000000000000
@@ -312,8 +311,7 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 85.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
@@ -325,7 +323,7 @@ object OptionsFrame: TOptionsFrame
             Margins.Left = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Position.X = 8.000000000000000000
-            Size.Width = 561.585632324218800000
+            Size.Width = 34.000000000000000000
             Size.Height = 161.000000000000000000
             Size.PlatformDefault = False
             Text = ' Syntax example '
@@ -340,7 +338,7 @@ object OptionsFrame: TOptionsFrame
               Margins.Bottom = 12.000000000000000000
               StyleLookup = 'TMSFMXMemo1Style1'
               TabOrder = 1
-              Size.Width = 537.585632324218800000
+              Size.Width = 10.000000000000000000
               Size.Height = 131.000000000000000000
               Size.PlatformDefault = False
               ActiveLineSettings.ShowActiveLine = False
@@ -376,42 +374,48 @@ object OptionsFrame: TOptionsFrame
             Margins.Left = 8.000000000000000000
             Margins.Right = 8.000000000000000000
             Margins.Bottom = 8.000000000000000000
-            Size.Width = 561.585632324218800000
-            Size.Height = 220.691680908203100000
+            Size.Width = 34.000000000000000000
             Size.PlatformDefault = False
             Text = ' Syntax settings '
             TabOrder = 1
-            object Label1: TLabel
-              Position.X = 8.000000000000000000
-              Position.Y = 24.000000000000000000
-              Size.Width = 113.000000000000000000
-              Size.Height = 17.000000000000000000
-              Size.PlatformDefault = False
-              Text = 'Select Syntax Styler:'
-            end
-            object cbStylesList: TComboBox
-              Anchors = [akLeft, akTop, akRight]
-              Position.X = 120.000000000000000000
-              Position.Y = 24.000000000000000000
-              Size.Width = 627.585632324218800000
-              Size.Height = 22.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 1
-              OnChange = cbStylesListChange
-            end
             object ScrollBox1: TScrollBox
               Align = Client
               Margins.Left = 8.000000000000000000
-              Margins.Top = 52.000000000000000000
               Margins.Right = 8.000000000000000000
               Margins.Bottom = 8.000000000000000000
-              Size.Width = 545.585632324218800000
-              Size.Height = 160.691680908203100000
+              Size.Width = 18.000000000000000000
               Size.PlatformDefault = False
               StyleLookup = 'ScrollBox1Style1'
-              TabOrder = 2
+              TabOrder = 1
               Viewport.Width = 545.600000000000000000
-              Viewport.Height = 160.700000000000000000
+              Viewport.Height = 137.700000000000000000
+            end
+            object Layout1: TLayout
+              Align = Top
+              Margins.Left = 8.000000000000000000
+              Margins.Top = 25.000000000000000000
+              Margins.Right = 8.000000000000000000
+              Position.X = 8.000000000000000000
+              Position.Y = 25.000000000000000000
+              Size.Width = 18.000000000000000000
+              Size.Height = 50.000000000000000000
+              Size.PlatformDefault = False
+              TabOrder = 2
+              object Label1: TLabel
+                Align = Left
+                Size.Width = 113.000000000000000000
+                Size.Height = 50.000000000000000000
+                Size.PlatformDefault = False
+                Text = 'Select Syntax Styler:'
+              end
+              object cbStylesList: TComboBox
+                Align = Client
+                Size.Height = 50.000000000000000000
+                Size.PlatformDefault = False
+                TabOrder = 1
+                OnChange = cbStylesListChange
+                OnClosePopup = cbStylesListClosePopup
+              end
             end
           end
         end
@@ -420,79 +424,13 @@ object OptionsFrame: TOptionsFrame
             item
             end>
           IsSelected = False
-          Size.Width = 58.000000000000000000
-          Size.Height = 26.000000000000000000
+          Size.Height = 5.000000000000000000
           Size.PlatformDefault = False
           StyleLookup = ''
           TabOrder = 0
           Text = 'Plugins'
           ExplicitSize.cx = 58.000000000000000000
           ExplicitSize.cy = 24.000000000000000000
-          object lvPlugins: TListView
-            ItemAppearanceClassName = 'TImageListItemAppearance'
-            ItemEditAppearanceClassName = 'TImageListItemDeleteAppearance'
-            HeaderAppearanceClassName = 'TListHeaderObjects'
-            FooterAppearanceClassName = 'TListHeaderObjects'
-            Align = Client
-            Margins.Top = 10.000000000000000000
-            Size.Width = 577.585632324218800000
-            Size.Height = 329.691680908203100000
-            Size.PlatformDefault = False
-            TabOrder = 0
-            ItemAppearance.ItemHeight = 100
-            ItemAppearance.ItemEditHeight = 100
-            ItemAppearanceObjects.ItemObjects.Image.ScalingMode = Stretch
-            ItemAppearanceObjects.ItemObjects.Image.Width = 80.000000000000000000
-            ItemAppearanceObjects.ItemObjects.Image.Height = 80.000000000000000000
-            OnChange = lvPluginsChange
-          end
-          object lytBtn: TLayout
-            Align = MostBottom
-            Position.Y = 339.691680908203100000
-            Size.Width = 577.585632324218800000
-            Size.Height = 50.000000000000000000
-            Size.PlatformDefault = False
-            TabOrder = 1
-            object btnAdd: TButton
-              Hint = 'Add Plugin'
-              Align = Right
-              Margins.Left = 8.000000000000000000
-              Margins.Top = 13.000000000000000000
-              Position.X = 313.585632324218800000
-              Position.Y = 13.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 37.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 2
-              Text = 'Add'
-            end
-            object btnEdit: TButton
-              Hint = 'Edit Plugin'
-              Align = Right
-              Margins.Left = 8.000000000000000000
-              Margins.Top = 13.000000000000000000
-              Position.X = 401.585632324218800000
-              Position.Y = 13.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 37.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 1
-              Text = 'Edit'
-            end
-            object btnRemove: TButton
-              Align = Right
-              Margins.Left = 8.000000000000000000
-              Margins.Top = 13.000000000000000000
-              Margins.Right = 8.000000000000000000
-              Position.X = 489.585632324218800000
-              Position.Y = 13.000000000000000000
-              Size.Width = 80.000000000000000000
-              Size.Height = 37.000000000000000000
-              Size.PlatformDefault = False
-              TabOrder = 0
-              Text = 'Remove'
-            end
-          end
         end
       end
       object BottomLayout: TLayout

@@ -63,18 +63,19 @@ type
     BGRect: TRectangle;
     GreenRect: TRectangle;
     chkAutoOpen: TCheckBox;
-    lvPlugins: TListView;
-    lytBtn: TLayout;
-    btnAdd: TButton;
-    btnEdit: TButton;
-    btnRemove: TButton;
+    Layout1: TLayout;
     procedure FormKeyDown(Sender: TObject; var Key: Word; var KeyChar: Char;
       Shift: TShiftState);
     procedure cbStylesListChange(Sender: TObject);
     procedure chkGutterVisibleClick(Sender: TObject);
     procedure chkMemoRightMarginClick(Sender: TObject);
     procedure btnSearchPathClick(Sender: TObject);
+
+    procedure TabControl1Change(Sender: TObject);
+    procedure cbStylesListClosePopup(Sender: TObject);
+
     procedure lvPluginsChange(Sender: TObject);
+
   private
     { Private declarations }
     procedure ShowStylerStyles(AStylerName: string);
@@ -83,6 +84,13 @@ type
     {$IFDEF MSWINDOWS}
     Handle: TWindowHandle;
     {$ENDIF}
+    lvPlugins: TListView;
+    lytBtn: TLayout;
+    btnAdd: TButton;
+    btnEdit: TButton;
+    btnRemove: TButton;
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure FormCreate(Sender: TObject);
     procedure FormShow(Sender: TObject);
   end;
@@ -109,6 +117,11 @@ begin
     ShowStylerStyles(cbStylesList.Items[cbStylesList.ItemIndex]);
 end;
 
+procedure TOptionsFrame.cbStylesListClosePopup(Sender: TObject);
+begin
+cbStylesListChange(Sender);
+end;
+
 procedure TOptionsFrame.chkGutterVisibleClick(Sender: TObject);
 begin
   chkGutterLineNumbers.Enabled := not chkGutterVisible.IsChecked;
@@ -119,6 +132,111 @@ end;
 procedure TOptionsFrame.chkMemoRightMarginClick(Sender: TObject);
 begin
   spinMemoRightColumn.Enabled := not chkMemoRightMargin.IsChecked;
+end;
+
+constructor TOptionsFrame.Create(AOwner: TComponent);
+begin
+  inherited;
+{$REGION 'Plugins'}
+    lvPlugins:= TListView.Create(self);
+    with lvPlugins do
+    begin
+      ItemAppearanceClassName := 'TImageListItemAppearance';
+      ItemEditAppearanceClassName := 'TImageListItemDeleteAppearance';
+      HeaderAppearanceClassName := 'TListHeaderObjects';
+      FooterAppearanceClassName := 'TListHeaderObjects';
+      Align := TAlignLayout.Client;
+      Size.Width := 577.585632324218800000;
+      Size.Height := 344.691680908203100000;
+      Size.PlatformDefault := False;
+      TabOrder := 0;
+      ItemAppearance.ItemHeight := 100;
+      ItemAppearance.ItemEditHeight := 100;
+      ItemAppearanceObjects.ItemObjects.Image.ScalingMode := TImageScalingMode.Stretch;
+      ItemAppearanceObjects.ItemObjects.Image.Width := 80.000000000000000000;
+      ItemAppearanceObjects.ItemObjects.Image.Height := 80.000000000000000000;
+      OnClick := lvPluginsChange;
+      OnChange := lvPluginsChange;
+      OnItemClick := frmMain.lvPluginsItemClick;
+      Parent := self.tbiPlugins;
+    end ;
+
+    lytBtn := TLayout.Create(self);
+    with lytBtn do
+    begin
+        Align := TAlignLayout.Bottom;
+        Margins.Top := 4.000000000000000000;
+        Margins.Bottom := 4.000000000000000000;
+        Position.Y := 348.691680908203100000;
+        Size.Width := 577.585632324218800000;
+        Size.Height := 37.000000000000000000;
+        Size.PlatformDefault := False;
+        TabOrder := 1;
+        Parent := lvPlugins;
+    end;
+    btnRemove := TButton.Create(self);
+    with btnRemove do
+    begin
+        Action := frmMain.actRemovePlugin;
+        OnClick := frmMain.actRemovePluginExecute;
+        Align := TAlignLayout.Right;
+        Enabled := True;
+        ImageIndex := -1;
+        Margins.Left := 8.000000000000000000;
+        Margins.Right := 8.000000000000000000;
+        Position.X := 489.585632324218800000;
+        Size.Width := 80.000000000000000000;
+        Size.Height := 37.000000000000000000;
+        Size.PlatformDefault := False;
+        TabOrder := 1;
+        Text := 'Remove';
+        Visible := True;
+        Enabled := False;
+        Parent := lytBtn;
+    end;
+    btnEdit := TButton.Create(self);
+    with btnEdit do
+    begin
+        Action := frmMain.actEditPlugin;
+        OnClick := frmMain.actEditPluginExecute;
+        Enabled := True;
+        ImageIndex := -1;
+        Margins.Left := 8.000000000000000000;
+        Position.X := 401.585632324218800000;
+        Size.Width := 80.000000000000000000;
+        Size.Height := 37.000000000000000000;
+        Align := TAlignLayout.Right;
+        Size.PlatformDefault := False;
+        TabOrder := 2;
+        Text := 'Edit';
+        Visible := True;
+        Enabled := False;
+        Parent := lytBtn;
+    end;
+
+    btnAdd := TButton.Create(self);
+    with btnAdd do
+    begin
+        Action := frmMain.actAddPlugin;
+        OnClick := frmMain.actAddPluginExecute;
+        Enabled := True;
+        ImageIndex := -1;
+        Position.X := 313.585632324218800000;
+        Size.Width := 80.000000000000000000;
+        Size.Height := 37.000000000000000000;
+        Align := TAlignLayout.Right;
+        Size.PlatformDefault := False;
+        TabOrder := 0;
+        Text := 'Add';
+        Visible := True;
+        Parent := lytBtn;
+    end;
+{$ENDREGION}
+end;
+
+destructor TOptionsFrame.Destroy;
+begin
+  inherited;
 end;
 
 procedure TOptionsFrame.FormCreate(Sender: TObject);
@@ -155,6 +273,7 @@ procedure TOptionsFrame.lvPluginsChange(Sender: TObject);
 var
     LCanEdit : Boolean;
 begin
+    frmMain.lvPluginsChange(Sender);
     LCanEdit := TListView(Sender).ItemCount > 0;
     btnEdit.Enabled := LCanEdit;
     btnRemove.Enabled := LCanEdit;
@@ -200,5 +319,10 @@ begin
   end;
 end;
 
+
+procedure TOptionsFrame.TabControl1Change(Sender: TObject);
+begin
+cbStylesListChange(Sender);
+end;
 
 end.

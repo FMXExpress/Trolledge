@@ -139,7 +139,7 @@ end;
 {------------------------------------------------------------------------------}
 function TPlugins.GetIsEmpty : Boolean;
 begin
-    Result := self.Count > 0;
+    Result := self.Count < 1;
 end;
 {------------------------------------------------------------------------------}
 function TPlugins.LoadFromJson(AJSONValue: string): Boolean;
