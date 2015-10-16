@@ -3618,9 +3618,10 @@ var
     LmSecCount : Integer;
     LNow : TDateTime;
     LTask : ITask;
-    ASourceCode: String;
+    ASourceCode, LFileExt: String;
 begin
-    if (lbStyleSetting.Text<>'Pascal') OR (ExtractFileExt(FSelectedFrame.lbFilename.Text)='.fmx') then
+    LFileExt := ExtractFileExt(FSelectedFrame.lbFilename.Text);
+    if (lbStyleSetting.Text<>'Pascal') OR (LFileExt ='.fmx') or (LFileExt ='.dfm') then
      begin
       ASourceCode := '';
      end
