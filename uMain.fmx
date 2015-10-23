@@ -13879,6 +13879,11 @@ object frmMain: TfrmMain
       Text = 'actRemovePlugin'
       OnExecute = actRemovePluginExecute
     end
+    object actOpenZipFile: TAction
+      Category = 'MainProgram'
+      Text = 'actOpenZipFile'
+      OnExecute = actOpenZipFileExecute
+    end
   end
   object TMSFMXMemoFindDialog1: TTMSFMXMemoFindDialog
     Memo = MemoFrame1.TMSFMXMemo1

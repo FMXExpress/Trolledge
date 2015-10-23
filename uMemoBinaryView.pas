@@ -110,7 +110,7 @@ begin
           on E: Exception do
           begin
             ShowMessage(E.Message);
-            AMemoFrame.TMSFMXMemo1.Lines.Clear;
+            AMemoFrame.TMSFMXMemo1.Lines.Text := string.Empty;
             HexViewer.LinesList.Clear;
           end;
         end;

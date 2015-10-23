@@ -293,6 +293,7 @@ type
     actSQL: TAction;
     actPlain: TAction;
     actRemovePlugin: TAction;
+    actOpenZipFile: TAction;
     procedure FormCreate(Sender: TObject);
     procedure actOpenFolderExecute(Sender: TObject);
     procedure actSaveFileExecute(Sender: TObject);
@@ -408,6 +409,7 @@ type
     procedure actPASExecute(Sender: TObject);
     procedure TreeView2Click(Sender: TObject);
     procedure actRemovePluginExecute(Sender: TObject);
+    procedure actOpenZipFileExecute(Sender: TObject);
   private
     { Private declarations }
     //--------------------------------------------------------------------------
@@ -542,7 +544,7 @@ type
     procedure SetMemoFocus(AMemoFrame: TMemoFrame);
     function GetMemoFrameByTag(ATag: integer): TMemoFrame;
     procedure LoadFrameFromFile(const AFileName: String; const AMemoFrame: TMemoFrame;
-      const ALineNumber: Integer = 0);
+      const ALineNumber: Integer = 0; AReadOnly : Boolean = False);
     procedure AddHints(Sender: TObject);
     function GetSyntaxStylerByName(const AStylerName: string): TTMSFMXMemoCustomStyler;
     //-------------------------------------- History routine -------------------
@@ -1154,6 +1156,34 @@ begin
 
     FilesTree.EnumDir(NewPath);
     //LoadFrameFromFile(OpenDialog1.FileName,FSelectedFrame);
+  end;
+end;
+
+procedure TfrmMain.actOpenZipFileExecute(Sender: TObject);
+var
+  LFrame: TMemoFrame;
+  LTag : integer;
+  LItem : TTreeViewItem;
+  LTree : TTreeView;
+  LExtractFileName, LZipFileName : string;
+  LIsExtract : Boolean;
+begin
+  LTree := Sender as TTreeView;
+  if not Assigned(LTree) then
+    exit;
+  LTag := LTree.Tag;
+  LItem := LTree.Selected;
+  LZipFileName := LTree.TagString;
+  if  Assigned(LItem) and (not LItem.TagString.IsEmpty) and (not LZipFileName.IsEmpty) then
+  begin
+    LIsExtract := ExtractFile(LZipFileName, LItem.Tag, LExtractFileName);
+    if not LIsExtract then
+        exit;
+    LFrame := SplitEditor(LTag);
+    if not Assigned(LFrame) then
+        exit;
+    LoadFrameFromFile(LExtractFileName, LFrame, 0, True);
+    ReArrangeMemoFrames;
   end;
 end;
 
@@ -3202,7 +3232,7 @@ begin
 end;
 
 procedure TfrmMain.LoadFrameFromFile(const AFileName: String; const AMemoFrame: TMemoFrame;
-  const ALineNumber: Integer = 0);
+  const ALineNumber: Integer = 0; AReadOnly : Boolean = False);
 var
   WorkItem: TWorkItem;
   FT: TFileType;
@@ -3242,6 +3272,8 @@ begin
     begin
       MemoLoadFile(AFileName, AMemoFrame, ALineNumber);
     end;
+    if AReadOnly then
+        AMemoFrame.TMSFMXMemo1.ReadOnly := True;
   end else
      // Create a new editor
   begin
