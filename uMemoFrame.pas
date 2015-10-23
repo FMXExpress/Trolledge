@@ -91,6 +91,7 @@ begin
   case Key of
     vkEscape: frmMain.GoToListHide(Self);
     vkReturn: frmMain.GoToListExec(Sender, Self);
+    vkUp, vkDown: frmMain.GoToListUpDown(Key, self);
   end;
 end;
 

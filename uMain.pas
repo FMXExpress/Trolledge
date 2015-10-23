@@ -562,6 +562,7 @@ type
     procedure GoToListCommand(AMemoFrame: TMemoFrame = nil);
     procedure GoToCode(AMethodName: string);
     procedure GoToListExec(Sender: TObject; AMemoFrame: TMemoFrame = nil);
+    procedure GoToListUpDown(AKey : Word; AMemoFrame: TMemoFrame = nil);
     //--------------------------------------------------------------------------
     function  MemoFrameVisibleCount: integer;
     procedure OnCreateEvent(Sender: TObject);
@@ -2167,6 +2168,7 @@ begin
     begin
       FDO := [fdoWrapAtEndOfFile, fdoDown];
       FSelectedMemo.FindText(AMethodName, FDO);
+      FSelectedMemo.SetFocus;
     end;
   except
     On E: Exception do
@@ -2198,6 +2200,27 @@ begin
   end;
 end;
 
+procedure TfrmMain.GoToListUpDown(AKey : Word; AMemoFrame: TMemoFrame = nil);
+var
+    lItemIndex : integer;
+begin
+  if AMemoFrame = nil then
+    AMemoFrame := FselectedFrame;
+  if Assigned(AMemoFrame) then
+  begin
+    lItemIndex := AMemoFrame.ListView1.ItemIndex;
+    case AKey of
+        vkDown :
+            if lItemIndex + 1 < AMemoFrame.ListView1.ItemCount then
+                lItemIndex := lItemIndex + 1;
+        vkUp :
+            if lItemIndex > 0 then
+                lItemIndex := lItemIndex - 1;
+    end;
+    AMemoFrame.ListView1.ItemIndex := lItemIndex;
+  end;
+end;
+
 procedure TfrmMain.GoToListExec(Sender: TObject; AMemoFrame: TMemoFrame = nil);
 var
   LineNumber: integer;
@@ -2226,7 +2249,7 @@ begin
             begin
               if AMemoFrame.ListView1.ItemCount = 0 then
                 Exit;
-
+              //Why not LItem := AMemoFrame.ListView1.Selected; ?
               LItem := AMemoFrame.ListView1.Items[AMemoFrame.ListView1.Selected.Index];
               if LItem <> nil then
                 GoToListFileName(LItem.Detail + LItem.Text, AMemoFrame);
@@ -2297,7 +2320,10 @@ begin
     if AlineNumber > 0 then
     begin
       if AMemoFrame.TMSFMXMemo1.Lines.Count >= Pred(ALineNumber) then
+      begin
         AMemoFrame.TMSFMXMemo1.SetCursor(1, Pred(ALineNumber));
+        AMemoFrame.TMSFMXMemo1.SetFocus;
+      end;
     end;
   end;
 end;
@@ -2531,6 +2557,7 @@ begin
   //  FDO := [fdovWrapAtEndOfFile];
     FDO := [fdoWrapAtEndOfFile, fdoDown];
     FSelectedMemo.FindText(FSelectedFrame.edFindText.Text,FDO);
+    FSelectedFrame.edFindText.SetFocus;
   end;
 end;
 
