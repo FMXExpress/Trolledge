@@ -23,6 +23,7 @@ const
   COpenLargeBinFile = 'File size is over 20 MB. (%sMB)' + sLineBreak +
                       'Opening the file takes a few seconds and depends file size.' + sLineBreak +
                       'Continue opening?';
+  CChangeDialogText = 'Module "%s" time/date changed. Reload?';
   {$IFDEF MSWINDOWS}
   CAllFileMask      = '*.*';
   {$ELSE}

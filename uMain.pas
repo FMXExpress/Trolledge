@@ -14,7 +14,7 @@ uses
   uMemoFrame, System.RegularExpressions, FMX.TextLayout, System.DateUtils,
   FMX.ListView.Types, FMX.ListView, FMX.Searchbox, Data.Bind.Components,
   Data.Bind.ObjectScope, PaxInterpreter, uPlugin,
-  uWorkFiles, uMemoHexView, duck, OXmlPDOM, uCodeCompleteInfo
+  uWorkFiles, uMemoHexView, duck, OXmlPDOM, uCodeCompleteInfo, uMonitoring
   {$IFDEF MSWINDOWS}
   , FMX.Platform.Win
   {$ENDIF}
@@ -446,6 +446,8 @@ type
     FBktPos : TPoint;
 
     FMemoSettings: TMemoSettings;
+
+    FMonitoring : TMonitoring;
     //--------------------------------------------------------------------------
     function  GetSyntaxStyler(const AFileExt: string): TTMSFMXMemoCustomStyler;
     function  ShowImage(const AFileName: string): boolean;
@@ -525,6 +527,9 @@ type
     procedure SetOpenParam(const Value: Boolean);
     procedure MemoKeyDown(Sender: TObject; var Key: Word;
       var KeyChar: Char; Shift: TShiftState);
+    //------------------------------------- Monitoring (File changes) -----------------
+     procedure ChangeFile(const AFName : string);
+     procedure InitMonitoring;
     //--------------------------------------------------------------------------
   public
     { Public declarations }
@@ -1749,7 +1754,7 @@ begin
       FrameOptions.lvPluginsChange(FrameOptions.lvPlugins);
     end;
   PluginLoadListView;
-
+  InitMonitoring;
   // --------------- auto completion code -------------------------------
   FLock := False;
   OpenParam := False;
@@ -3264,6 +3269,8 @@ var
   WorkItem: TWorkItem;
   FT: TFileType;
 begin
+  //temp comment
+  //FMonitoring.StartWatch(AFileName);
   if MemoFrameVisibleCount = 0 then
   begin
     MemoFrame2.Visible := True;
@@ -3301,7 +3308,8 @@ begin
     end;
     if AReadOnly then
         AMemoFrame.TMSFMXMemo1.ReadOnly := True;
-  end else
+  end
+  else
      // Create a new editor
   begin
     if AMemoFrame.FPredFileName = EmptyStr then
@@ -3794,6 +3802,11 @@ begin
   end;
 end;
 
+procedure TfrmMain.ChangeFile(const AFName: string);
+begin
+    //need show dialog and reload frame
+end;
+
 function TfrmMain.GetWidthText(AObj : TText): Single;
 var
   TextLayout: TTextLayout;
@@ -3932,6 +3945,12 @@ begin
         FreeAndNil(LList);
     end ;
 
+end;
+
+procedure TfrmMain.InitMonitoring;
+begin
+    FMonitoring := TMonitoring.Create;
+    FMonitoring.OnFileChanges := ChangeFile;
 end;
 
 procedure TfrmMain.InsertAutoCompletionEntry(Sender: TObject;
