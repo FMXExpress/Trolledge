@@ -66,6 +66,7 @@ type
     FTimer : TTimer;
     FDir : string;
     FFiles : TDictionary<string, Boolean>;
+    FIgnoreFiles : TList<string>;
     FOnFileChanges : TFileChange;
     procedure DoOnFileChanges(const AFName : string);
     procedure StartTimer; inline;
@@ -87,6 +88,7 @@ type
     // Остановка мониторинга
     procedure StopWatch; overload;
     procedure StopWatch(pName: string); overload;
+    procedure PauseWatch(pName : string);
     procedure InfoCallback(pInfo: TInfoCallback);
   public
     property OnFileChanges : TFileChange read FOnFileChanges write FOnFileChanges;
@@ -100,7 +102,7 @@ procedure TMonitoring.StartWatch(pName: string; pFilter: cardinal; pSubTree: boo
 var
     lDir : string;
 begin
-    if FFiles.ContainsKey(pName) then
+    if pName.IsEmpty or FFiles.ContainsKey(pName) then
         exit;
     lDir := TPath.GetDirectoryName(pName);
     if not FDir.Equals(lDir) then
@@ -118,6 +120,7 @@ constructor TMonitoring.Create;
 begin
     FDir := string.Empty;
     FFiles := TDictionary<string, Boolean>.Create;
+    FIgnoreFiles := TList<string>.Create;
     InitTimer;
 {$IFDEF MSWINDOWS}
     FWFS := nil;
@@ -129,6 +132,7 @@ begin
     StopWatch;
     FreeAndNil(FTimer);
     FreeAndNil(FFiles);
+    FreeAndNil(FIgnoreFiles);
     inherited;
 end;
 
@@ -140,7 +144,14 @@ end;
 
 procedure TMonitoring.StopWatch(pName: string);
 begin
-    FFiles.Remove(pName);
+    if not pName.IsEmpty then
+        FFiles.Remove(pName);
+end;
+
+procedure TMonitoring.PauseWatch(pName: string);
+begin
+    if not FIgnoreFiles.Contains(pName) then
+        FIgnoreFiles.Add(pName);
 end;
 
 procedure TMonitoring.TrySetChanges(const AFName: string);
@@ -177,8 +188,15 @@ end;
 procedure TMonitoring.OnTimer(Sender: TObject);
 var
     item : TPair<string, Boolean>;
+    ignoreFile : string;
 begin
     FTimer.Enabled := False;
+    //remove changedflag from my saving
+    for ignoreFile in FIgnoreFiles do
+        if FFiles.ContainsKey(ignoreFile) then
+            FFiles.Items[ignoreFile] := False;
+    FIgnoreFiles.Clear;
+    //call notifyevent
     for item in FFiles do
         if item.Value then
         begin

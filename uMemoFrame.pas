@@ -55,14 +55,26 @@ type
   private
     { Private declarations }
     FCanDrop: boolean;
+    FOnAfterSave : TNotifyEvent;
+    FSaveFileName : string;
+    procedure DoOnAfterSave;
   public
     { Public declarations }
     FMemoChanged: Boolean;
+    FFileChanged : Boolean;
     FPredFileName: string;
     FEncoding: String;
     FCRLF: string;
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
+    /// <summary>
+    /// if AFileName.IsEmpty then
+    ///    AFileName := FPredFileName;
+    /// </summary>
+    procedure SaveMemoLines(AFileName : string = '');
+  public
+    property OnAfterSave : TNotifyEvent read FOnAfterSave write FOnAfterSave;
+    property SaveFileName : string read FSaveFileName;
   end;
 
 implementation
@@ -75,14 +87,23 @@ constructor TMemoFrame.Create(AOwner: TComponent);
 begin
   inherited;
   FMemoChanged := False;
+  FFileChanged := False;
   FPredFileName := '';
   FCRLF := '';
+  FSaveFileName := string.Empty;
+  FOnAfterSave := nil;
 end;
 
 destructor TMemoFrame.Destroy;
 begin
 
   inherited;
+end;
+
+procedure TMemoFrame.DoOnAfterSave;
+begin
+    if Assigned(OnAfterSave) then
+        OnAfterSave(self);
 end;
 
 procedure TMemoFrame.edGoToFilterKeyDown(Sender: TObject; var Key: Word;
@@ -139,6 +160,20 @@ begin
     vkEscape: frmMain.GoToListHide(Self);
     vkReturn: frmMain.GoToListExec(Sender, Self);
   end;
+end;
+
+/// <summary>
+/// if AFileName.IsEmpty then
+///    AFileName := FPredFileName;
+/// </summary>
+procedure TMemoFrame.SaveMemoLines(AFileName: string);
+begin
+    if AFileName.IsEmpty then
+        AFileName := self.FPredFileName;
+    FSaveFileName := AFileName;
+    DoOnAfterSave;
+    TMSFMXMemo1.Lines.SaveToFile(AFileName);
+    FFileChanged := False;
 end;
 
 procedure TMemoFrame.TMSFMXMemo1ApplyStyleLookup(Sender: TObject);

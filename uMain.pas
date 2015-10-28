@@ -294,6 +294,8 @@ type
     actPlain: TAction;
     actRemovePlugin: TAction;
     actOpenZipFile: TAction;
+    actOnAfterSaveMemo: TAction;
+    actReloadFrame: TAction;
     procedure FormCreate(Sender: TObject);
     procedure actOpenFolderExecute(Sender: TObject);
     procedure actSaveFileExecute(Sender: TObject);
@@ -410,6 +412,8 @@ type
     procedure TreeView2Click(Sender: TObject);
     procedure actRemovePluginExecute(Sender: TObject);
     procedure actOpenZipFileExecute(Sender: TObject);
+    procedure actOnAfterSaveMemoExecute(Sender: TObject);
+    procedure actReloadFrameExecute(Sender: TObject);
   private
     { Private declarations }
     //--------------------------------------------------------------------------
@@ -529,7 +533,9 @@ type
       var KeyChar: Char; Shift: TShiftState);
     //------------------------------------- Monitoring (File changes) -----------------
      procedure ChangeFile(const AFName : string);
+     procedure SetFileChanged(const AFName : string);
      procedure InitMonitoring;
+     procedure CheckFileChanged(AMemoFrame: TMemoFrame);
     //--------------------------------------------------------------------------
   public
     { Public declarations }
@@ -732,7 +738,8 @@ begin
       if TMemoFrame(obj).Visible and
         (not SameText(TMemoFrame(obj).FPredFileName, CDefFileName)) then
         try
-          TMemoFrame(obj).TMSFMXMemo1.Lines.SaveToFile(TMemoFrame(obj).FPredFileName);
+          //TMemoFrame(obj).TMSFMXMemo1.Lines.SaveToFile(TMemoFrame(obj).FPredFileName);
+          TMemoFrame(obj).SaveMemoLines;
           TMemoFrame(obj).TMSFMXMemo1.ClearUndoRedo;
           TMemoFrame(obj).FMemoChanged := False;
         except
@@ -1119,6 +1126,30 @@ begin
   actRedo.Enabled := FSelectedMemo.CanRedo;
 end;
 
+procedure TfrmMain.actReloadFrameExecute(Sender: TObject);
+var
+    lMemoFrame : TMemoFrame;
+    lFileName : string;
+begin
+    lMemoFrame := Sender as TMemoFrame;
+    if not Assigned(lMemoFrame) then
+        Exit;
+    lMemoFrame.FFileChanged := False;
+    //need create //temp
+    try
+        if TFile.Exists(lMemoFrame.FPredFileName) then
+        begin
+          lFileName := lMemoFrame.FPredFileName;
+          lMemoFrame.FPredFileName := string.Empty;
+          LoadFrameFromFile(lFileName, lMemoFrame,
+            lMemoFrame.TMSFMXMemo1.CurY, lMemoFrame.TMSFMXMemo1.ReadOnly);
+          TryOpenFormUnit(lFileName);
+        end;
+    except
+        lMemoFrame.FFileChanged := True;
+    end
+end;
+
 procedure TfrmMain.actRemovePluginExecute(Sender: TObject);
 begin
     PluginRemove;
@@ -1134,6 +1165,12 @@ begin
     FilesTree.EnumDir(TPath.GetDirectoryName(AFileName));
     LoadFrameFromFile(AFileName, FSelectedFrame);
     TryOpenFormUnit(AFileName);
+end;
+
+procedure TfrmMain.actOnAfterSaveMemoExecute(Sender: TObject);
+begin
+    if Assigned(FMonitoring) then
+        FMonitoring.PauseWatch(TMemoFrame(Sender).SaveFileName);
 end;
 
 procedure TfrmMain.actOpenFileExecute(Sender: TObject);
@@ -1242,7 +1279,8 @@ begin
       // Prevent to save newly created file (that aren't saved yet)
       if TFile.Exists(FSelectedFrame.FPredFileName) then
       begin
-        FSelectedMemo.Lines.SaveToFile(FSelectedFrame.FPredFileName);
+        //FSelectedMemo.Lines.SaveToFile(FSelectedFrame.FPredFileName);
+        FSelectedFrame.SaveMemoLines;
         FSelectedMemo.ClearUndoRedo;
         FSelectedFrame.FMemoChanged := False;
         LWorkItem := WorkFilesTree.WorkItemByFileName(FSelectedFrame.FPredFileName);
@@ -1595,6 +1633,7 @@ end;
 
 procedure TfrmMain.SetMemoFocus(AMemoFrame: TMemoFrame);
 begin
+  CheckFileChanged(AMemoFrame);
   if FSelectedFrame = AMemoFrame then
    Exit;
   FSelectedFrame := AMemoFrame;
@@ -1672,7 +1711,7 @@ begin
       TMemoFrame(obj).TMSFMXMemo1.OnAutoCompletionCustomizeList := AutoCompletionCustomizeList;
       TMemoFrame(obj).TMSFMXMemo1.OnAutoCompletionCustomizeItem := AutoCompletionCustomizeItem;
       TMemoFrame(obj).TMSFMXMemo1.OnBeforeAutoCompletion := BeforeAutoCompletion;
-
+      TMemoFrame(obj).OnAfterSave := self.actOnAfterSaveMemoExecute;
     end
   );
 
@@ -2789,7 +2828,8 @@ begin
   try
    if ((FSelectedFrame <> nil) AND (FSelectedMemo <> nil)) then
     begin
-     FSelectedMemo.Lines.SaveToFile(SavedFileName);
+     //FSelectedMemo.Lines.SaveToFile(SavedFileName);
+     FSelectedFrame.SaveMemoLines(SavedFileName);
      LWorkItem := WorkFilesTree.WorkItemByFileName(FSelectedFrame.FPredFileName);
      if LWorkItem <> nil then LWorkItem.Modified := False;
      FSelectedFrame.TMSFMXMemo1.ClearUndoRedo;
@@ -3269,8 +3309,10 @@ var
   WorkItem: TWorkItem;
   FT: TFileType;
 begin
-  //temp comment
-  //FMonitoring.StartWatch(AFileName);
+  //restart monitoring
+  FMonitoring.StopWatch(AMemoFrame.FPredFileName);
+  AMemoFrame.FFileChanged := False;
+  FMonitoring.StartWatch(AFileName);
   if MemoFrameVisibleCount = 0 then
   begin
     MemoFrame2.Visible := True;
@@ -3805,6 +3847,54 @@ end;
 procedure TfrmMain.ChangeFile(const AFName: string);
 begin
     //need show dialog and reload frame
+    SetFileChanged(AFName);
+end;
+
+procedure TfrmMain.CheckFileChanged(AMemoFrame: TMemoFrame);
+var
+    DlgResult : integer;
+    Msg : string;
+begin
+    if (not Assigned(AMemoFrame)) or (not AMemoFrame.FFileChanged) then
+        Exit;
+    Msg := Format(CChangeDialogText, [AMemoFrame.FPredFileName]);
+    DlgResult :=
+        FMX.Dialogs.MessageDlg(
+            Msg,
+            TMsgDlgType.mtInformation, [System.UITypes.TMsgDlgBtn.mbYes,
+            System.UITypes.TMsgDlgBtn.mbNo], 0
+{$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+        );
+{$ELSE}
+        ,
+        procedure(const AResult: TModalResult)
+        begin
+            DlgResult := AResult;
+{$ENDIF}
+            case DlgResult of
+              // Reload file
+              mrYes: actReloadFrameExecute(AMemoFrame);
+              // No save. Lose changes.
+              mrNo: AMemoFrame.FFileChanged := False;
+            end;
+{$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
+{$ELSE}
+        end);
+{$ENDIF}
+end;
+
+procedure TfrmMain.SetFileChanged(const AFName : string);
+begin
+    Self.duck.all.isa(TMemoFrame).each(
+        procedure(obj: TObject)
+        var
+            lMemoFrame : TMemoFrame;
+        begin
+            lMemoFrame := TMemoFrame(obj);
+            if lMemoFrame.FPredFileName.Trim.Equals(AFName.Trim) then
+                lMemoFrame.FFileChanged := True;
+        end
+    );
 end;
 
 function TfrmMain.GetWidthText(AObj : TText): Single;
