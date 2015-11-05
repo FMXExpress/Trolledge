@@ -58,7 +58,8 @@ uses
   OXmlSAX in 'Source\OXML\units\OXmlSAX.pas',
   OXmlSerialize in 'Source\OXML\units\OXmlSerialize.pas',
   OXmlUtils in 'Source\OXML\units\OXmlUtils.pas',
-  OXmlXPath in 'Source\OXML\units\OXmlXPath.pas';
+  OXmlXPath in 'Source\OXML\units\OXmlXPath.pas',
+  uTreeeUtils in 'uTreeeUtils.pas';
 
 {$R *.res}
 

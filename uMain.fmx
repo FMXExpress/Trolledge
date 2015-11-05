@@ -113,6 +113,16 @@ object frmMain: TfrmMain
           Size.PlatformDefault = False
           TextSettings.Font.Style = [fsBold]
         end
+        object fltnmtnPB: TFloatAnimation
+          AutoReverse = True
+          Duration = 3.000000000000000000
+          Inverse = True
+          Loop = True
+          PropertyName = 'Value'
+          StartValue = 0.000000000000000000
+          StopValue = 100.000000000000000000
+          Trigger = 'IsVisible=true'
+        end
       end
       object btnCCPlatform: TRectangle
         Align = Right
@@ -6059,7 +6069,7 @@ object frmMain: TfrmMain
         ImageIndex = 9
       end
       object MenuItem33: TMenuItem
-        Action = actSearchInFiles
+        Action = actSwitchToSearch
         Enabled = True
         Locked = True
         ImageIndex = -1
@@ -13883,6 +13893,16 @@ object frmMain: TfrmMain
       Category = 'MainProgram'
       Text = 'actOpenZipFile'
       OnExecute = actOpenZipFileExecute
+    end
+    object actOnAfterSaveMemo: TAction
+      Category = 'MainProgram'
+      Text = 'actOnAfterSaveMemo'
+      OnExecute = actOnAfterSaveMemoExecute
+    end
+    object actReloadFrame: TAction
+      Category = 'MainProgram'
+      Text = 'actReloadFrame'
+      OnExecute = actReloadFrameExecute
     end
   end
   object TMSFMXMemoFindDialog1: TTMSFMXMemoFindDialog

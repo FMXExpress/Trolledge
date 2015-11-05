@@ -82,7 +82,7 @@ const
 type
   TFileTypeHelper = record helper for TFileType
   public
-    function FileType(const AFileName: string): TFileType;
+    function FileType(const AFileName: string): TFileType; inline;
     function TypeString: string; inline;
   end;
 

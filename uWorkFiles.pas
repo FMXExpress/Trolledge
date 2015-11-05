@@ -125,7 +125,8 @@ var
   LItem: TWorkItem;
   LFrame: TMemoFrame;
   LCount: integer;
-  DlgResult: integer;
+  DlgResult, lTag: integer;
+  lFileName : string;
 begin
   if Sender is TImage then
   begin
@@ -151,9 +152,13 @@ begin
           end;
         end;
         frmMain.actClosePane.Tag := LFrame.Tag;
+        frmMain.actClosePane.Target := LFrame;
+        //need for fix error Untitled files
+        lTag := LItem.Tag;
+        lFileName := LItem.FileName;
         if SameText(LItem.FileName, frmMain.FSelectedFrame.FPredFileName)  then
           frmMain.actClosePaneExecute(frmMain.actClosePane);
-        DeleteFromWorkList(LItem.FileName, LItem.Tag);
+        DeleteFromWorkList(lFileName, lTag);
       end;
     end;
   end;

@@ -20,7 +20,7 @@ uses
   {$ENDIF}
   {$IFDEF VER300}
    , FMX.ScrollBox, FMX.Memo, uOptions, FMX.ListView.Appearances,
-  FMX.ListView.Adapters.Base
+  FMX.ListView.Adapters.Base, FMX.Ani
   {$ENDIF}
   ;
 
@@ -296,6 +296,7 @@ type
     actOpenZipFile: TAction;
     actOnAfterSaveMemo: TAction;
     actReloadFrame: TAction;
+    fltnmtnPB: TFloatAnimation;
     procedure FormCreate(Sender: TObject);
     procedure actOpenFolderExecute(Sender: TObject);
     procedure actSaveFileExecute(Sender: TObject);
@@ -536,6 +537,7 @@ type
      procedure SetFileChanged(const AFName : string);
      procedure InitMonitoring;
      procedure CheckFileChanged(AMemoFrame: TMemoFrame);
+    function GetLoading: Boolean;
     //--------------------------------------------------------------------------
   public
     { Public declarations }
@@ -580,6 +582,10 @@ type
     procedure SelectFrame(ATMSFMXMemo: TTMSFMXMemo);
     procedure SaveSettings;
     procedure LoadSettings;
+    //------------------------------------- Progress Bar -----------------------
+    procedure ProgressWorkBegin(Sender: TObject; AText : string;
+        Animated : Boolean = False);
+    procedure ProgressAnimenteBegin(Sender : TObject);
     //------------------------------------- Hex Viewer -------------------------
     procedure HexVWorkBegin(Sender: TObject);
     procedure HexVWorkEnd(Sender: TObject);
@@ -591,6 +597,7 @@ type
     procedure CloseOptionsFrame;
 
     property Plugins : TPlugins read FPlugins;
+    property Loading : Boolean read GetLoading;
   end;
 
 var
@@ -984,8 +991,6 @@ end;
 
 procedure TfrmMain.actSearchInFilesExecute(Sender: TObject);
 begin
-  actSwitchToSearch.Execute;
-
   if SearchFilesTree.SearchRunning then
     Exit;
 
@@ -1175,6 +1180,8 @@ end;
 
 procedure TfrmMain.actOpenFileExecute(Sender: TObject);
 begin
+  if Loading then
+    exit;
   if not TabControl1.Visible then TabControl1.Visible := True;
   TabControl1.ActiveTab := TabItem1;
 
@@ -1188,6 +1195,8 @@ procedure TfrmMain.actOpenFolderExecute(Sender: TObject);
 var
 NewPath: String;
 begin
+  if Loading then
+    exit;
   if not TabControl1.Visible then TabControl1.Visible := True;
   TabControl1.ActiveTab := TabItem1;
 
@@ -1362,7 +1371,7 @@ begin
   Application.ProcessMessages;
   if SearchFilesTree.SearchRunning then
     Exit;
-
+  self.edFindInFiles.Text := string.EMpty;
   if FActiveProjectDir = EmptyStr then
   begin
    if OpenDialog1.Execute then
@@ -1716,6 +1725,9 @@ begin
   );
 
   FilesTree := TProtoFilesTree.Create(TreeView1);
+  FilesTree.OnBeginEnumDir := self.ProgressAnimenteBegin;
+  FilesTree.OnEndEnumDir := Self.HexVWorkEnd;
+
   WorkFilesTree := TWorkFilesTree.Create(TreeView1);
   SearchFilesTree := TProtoFilesTree.Create(TreeView2);
   FSelectedFrame.lbFileName.Text := CDefFileName + FNewFileCount.ToString;
@@ -2149,6 +2161,11 @@ begin
     Result := DefGutterWidth;
 end;
 
+function TfrmMain.GetLoading: Boolean;
+begin
+    Result := self.ProgressBar1.Visible;
+end;
+
 function TfrmMain.GetMemoFrameByTag(ATag: integer): TMemoFrame;
 begin
   case ATag of
@@ -2463,6 +2480,22 @@ begin
   end;
 end;
 
+procedure TfrmMain.ProgressWorkBegin(Sender: TObject; AText : string;
+    Animated : Boolean);
+begin
+  ProgressBar1.Value := 0;
+  fltnmtnPB.Enabled := Animated;
+  ProgressBar1.Visible := True;
+  txtHexViewProgress.Text := AText;
+  Application.ProcessMessages;
+end;
+
+procedure TfrmMain.ProgressAnimenteBegin(Sender: TObject);
+begin
+    ProgressBar1.Value := 0;
+    ProgressWorkBegin(Sender, 'Prepearing files data...', True);
+end;
+
 procedure TfrmMain.HexVProgress(Sender: TObject; BytesCount, Percent: integer);
 begin
   ProgressBar1.Value := Percent;
@@ -2474,14 +2507,12 @@ end;
 
 procedure TfrmMain.HexVWorkBegin(Sender: TObject);
 begin
-  ProgressBar1.Value := 0;
-  ProgressBar1.Visible := True;
-  txtHexViewProgress.Text := 'Prepearing hex data...';
-  Application.ProcessMessages;
+    ProgressWorkBegin(Sender, 'Prepearing hex data...');
 end;
 
 procedure TfrmMain.HexVWorkEnd(Sender: TObject);
 begin
+  fltnmtnPB.Enabled := False;
   Application.ProcessMessages;
 end;
 

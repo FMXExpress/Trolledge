@@ -18,7 +18,7 @@ procedure BindTree(const ATree : TTreeView; AFileName : string);
 
 implementation
 
-uses uMain, uFileTypeHelper, uConsts;
+uses uMain, uFileTypeHelper, uConsts, uTreeeUtils;
 
 procedure OnAplyStyleLookup(Sender: TObject);
 var
@@ -114,53 +114,27 @@ var
     ZipHeader: TZipHeader;
     LItem: TTreeViewItem;
     LChildItem: TTreeViewItem;
-    index, i, count : integer;
-    lFileName, lDirName, lZipFile, lFullDirName, lSplitDir : string;
-    FArray, LDirectories : TArray<string>;
-    lDircDirectories : TDictionary<string,TFmxObject>;
-    lParent : TFmxObject;
+    lZipFile : string;
+    FArray : TArray<string>;
 begin
     FArray := AZipFile.FileNames;
-    lDircDirectories := TDictionary<string,TFmxObject>.Create;
-    try
-        count := High(FArray);
-        for i := Low(FArray) to count do
+    TTreeUtils.BuildTreeFromFiles(AParent, FArray,
+        function (ADirName, AFullDirName : string; AParent : TFmxObject) : TFmxObject
         begin
-            lZipFile := FArray[i];
-            lFileName := system.IOUtils.TPath.GetFileName(lZipFile);
-            lFullDirName := system.IOUtils.TPath.GetDirectoryName(lZipFile);
-
-            lFullDirName := StringReplace(lFullDirName, System.IOUtils.TPath.AltDirectorySeparatorChar,
-                System.IOUtils.TPath.DirectorySeparatorChar, [rfReplaceAll]);
-            lParent := AParent;
-            if not lFullDirName.IsEmpty then
-            begin
-                LDirectories := lFullDirName.Split(System.IOUtils.TPath.DirectorySeparatorChar);
-                lDirName := string.Empty;
-                for lSplitDir in LDirectories do
-                begin
-                    case lDirName.IsEmpty of
-                        True : lDirName := lSplitDir;
-                        False : lDirName := lDirName + System.IOUtils.TPath.DirectorySeparatorChar + lSplitDir;
-                    end;
-                    if not lDircDirectories.ContainsKey(lDirName) then
-                    begin
-                        LItem := TTreeViewItem.Create(AParent);
-                        LItem.Parent := lParent;
-                        LItem.Text := lSplitDir;
-                        lDircDirectories.AddOrSetValue(lDirName, LItem);
-                    end;
-                    lParent := lDircDirectories.Items[lDirName];
-                end;
-            end;
-            if lFileName.IsEmpty then
-                Continue;
             LItem := TTreeViewItem.Create(AParent);
-            LItem.Parent := lParent;
-            LItem.Text := lFileName;
-            LItem.Tag := I;
-            LItem.TagString := lZipFile;
-            ZipHeader := AZipFile.FileInfo[I];
+            LItem.Parent := AParent;
+            LItem.Text := ADirName;
+            Result := LItem;
+        end,
+        procedure (AFileName, AFullFileName : string; AIndex : Integer; AParent : TFmxObject)
+        begin
+            //lZipFile := FArray[AIndex];
+            LItem := TTreeViewItem.Create(AParent);
+            LItem.Parent := AParent;
+            LItem.Text := AFileName;
+            LItem.Tag := AIndex;
+            LItem.TagString := AFullFileName;
+            ZipHeader := AZipFile.FileInfo[AIndex];
             LChildItem := TTreeViewItem.Create(AParent);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %s', ['Modified:', FormatDateTime(
@@ -175,10 +149,8 @@ begin
             LChildItem := TTreeViewItem.Create(AParent);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %s', ['CRC32:', IntToHex(ZipHeader.CRC32, 8)]);
-        end;
-    finally
-        lDircDirectories.Free;
-    end;
+        end
+    );
 end;
 
 procedure BindTree(const ATree : TTreeView; AFileName : string);
