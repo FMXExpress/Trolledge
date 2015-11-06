@@ -1,5 +1,5 @@
 ﻿unit uFilesTree;
-
+//{$DEFINE ONLYTOP}
 interface
 
 uses
@@ -7,7 +7,8 @@ uses
   FMX.Types, FMX.Controls, FMX.Forms, FMX.Graphics, FMX.Styles,
   FMX.Controls.Presentation, FMX.StdCtrls, FMX.TreeView, FMX.Platform,
   FMX.Objects, System.IOUtils, System.StrUtils, System.Generics.Collections,
-  FMX.ExtCtrls, FMX.Dialogs, System.Rtti, System.Threading, System.DateUtils;
+  FMX.ExtCtrls, FMX.Dialogs, System.Rtti, System.Threading, System.DateUtils,
+  uTreeeUtils;
 
 type
   TProtoFilesTree = class
@@ -23,10 +24,10 @@ type
     FRtlDirList: TStringList;
     FCaseSensitive: boolean;
 
-    //FTask: ITask;
+    FTasks : array[0..0] of ITask;
+    FTreeUtils : TTreeUtils;
     FSearchString : string;
     FDirName : string;
-    FSearchThreads: TList<TThread>;
     FSearchFiles : TList<string>;
     FTotalFiles: integer;
     FCountFiles: integer;
@@ -62,15 +63,20 @@ type
     procedure BeginSearch;
     procedure StepSearch; inline;
     procedure EndSearch;
+    procedure StopSearch;
     procedure SetSearchString(const Value: string);
     procedure OnTerminate(Sender : TObject);
     procedure AddFile(AFileName : string);
+    procedure EnumFolderSearch(Sender : TObject);
+    procedure CreateFileItem(AName, AFullName : string; AParent : TObject); inline;
+    procedure CreateTreeUtils;
+    procedure AddTask(AProc : TProc);
     function SearchFilter(AFileName : string) : Boolean; inline;
     function DirFilter(const Path: string; const SearchRec: TSearchRec): boolean; inline;
     function FileFilter(const Path: string; const SearchRec: TSearchRec): boolean; inline;
-    function AddThread(AProc : TProc; AStart : Boolean) : TThread;
-    function AddBuildThread : TThread;
-  public
+    function GetTask: ITask;
+
+    procedure SetTask(const Value: ITask);  public
     constructor Create(ATreeView: TTreeView);
     destructor Destroy; override;
     procedure Clear;
@@ -90,19 +96,39 @@ type
     property OnBeginEnumDir : TNotifyEvent read FOnBeginEnumDir write FOnBeginEnumDir;
     property OnEndEnumDir : TNotifyEvent read FOnEndENumDir write FOnEndENumDir;
     property SearchString : string read FSearchString write SetSearchString;
+    property Task : ITask read GetTask write SetTask;
   end;
   TPathItem = class
+  private
+    FItems : TObjectList<TPathItem>;
+    function GetIsDirectory: Boolean;
   public
-
+    FName : string;
+    FFullName : string;
+  public
+    constructor Create; overload;
+    constructor Create(AName : string; AFullname : string = ''); overload;
+    destructor Destroy; override;
+    function Add(AName : string; AFullname : string = '') : TPathItem;
+  public
+    property Items : TObjectList<TPathItem> read FItems;
+    property IsDirectory : Boolean read GetIsDirectory;
   end;
   TreeViewItemPath = class(TTreeViewItem)
   public
     FPath : string;
+    FPathItem : TPathItem;
   public
+    constructor Create(AOwner: TComponent); override;
+    destructor Destroy; override;
     procedure OnFolderClick(Sender : TObject);
-    procedure CreateFakeItem(AEnumDir : TNotifyEvent);
+    procedure CreateFakeItem(AEnumDir : TNotifyEvent); inline;
     procedure FolderApplyStyleLookup(Sender: TObject);
     function FoundFakeItem(var AEvent : TNotifyEvent) : Boolean;
+  public
+    class function CreateDir(AOwner, AParent : TFmxObject; ADirName : string;
+        AEnumDirSearch : TNotifyEvent) : TreeViewItemPath; inline;
+    property PathItem : TPathItem read FPathItem;
   end;
 const
     FAKETEXT = 'è½|';
@@ -110,7 +136,7 @@ implementation
 
 { TProtoFilesTree }
 
-uses uConsts, uMain, uTreeeUtils, uFileTypeHelper;
+uses uConsts, uMain, uFileTypeHelper;
 
 constructor TProtoFilesTree.Create(ATreeView: TTreeView);
 begin
@@ -122,44 +148,140 @@ begin
   FRtlDirList := TStringList.Create;
   FCaseSensitive := False;
 
-  //FTask := nil;
   FSearchString := string.Empty;
   FDirName := string.Empty;
-  FSearchThreads:= TList<TThread>.Create;
+  Task := nil;
   FSearchFiles := TList<string>.Create;
+  CreateTreeUtils;
   FTotalFiles := 0;
   FCountFiles := 0;
   FSearchRunning := False;
   FSearchCancel := False;
 end;
 
-destructor TProtoFilesTree.Destroy;
+procedure TProtoFilesTree.CreateFileItem(AName, AFullName: string;
+  AParent: TObject);
 var
-    lThread : TThread;
-    i, count : integer;
+    lItem : TTreeViewItem;
+    FoundCount, i : Integer;
+    lBodyFile : TStringList;
+    lIsFound : Boolean;
 begin
+    if FSearchCancel then
+        exit;
+    lItem := TTreeViewItem.Create(FTreeView);
+    lItem.Data := nil;
+    lItem.TagString := AFullName;
+    lItem.Text := AName;
+    lItem.TagFloat := S_MAIN_ITEM;
+    lBodyFile := TStringList.Create;
+    try
+        lBodyFile.Text := TFile.ReadAllText(AFullName);
+        if not FCaseSensitive then
+            lBodyFile.Text := lBodyFile.Text.ToUpper;
+        FoundCount := 0;
+        for I := 0 to lBodyFile.Count - 1 do
+        begin
+            if FSearchCancel then
+                exit;
+            lIsFound := lBodyFile[I].IndexOf(FSearchString) > -1;
+            if lIsFound then
+            begin
+                Inc(FoundCount);
+                if FoundCount<=10 then
+                    AddSearchLine(IntToStr(I), lBodyFile[I], lItem);
+            end;
+            Application.ProcessMessages;
+        end;
+    finally
+        FreeAndNil(lBodyFile);
+    end;
+    lItem.Tag := FoundCount;
+    lItem.StyleLookup := 'TreeViewItemDetailStyle';
+    lItem.OnApplyStyleLookup :=
+      TreeViewItemApplyStyleLookup;
+    lItem.Parent := AParent as TFmxObject;
+    lItem.NeedStyleLookup;
+    StepSearch;
+end;
+
+procedure TProtoFilesTree.CreateTreeUtils;
+var
+    lDirFunc : TFunc<string, string, TObject, TObject>;
+    lFileProc : TProc<string, string, Integer, TObject>;
+begin
+    lDirFunc :=
+        function (ADirName, AFullDirName : string; AParent : TObject) : TObject
+        var
+            lResult : TObject;
+        begin
+            if FSearchCancel then
+                Exit;
+            if (not AFullDirName.Contains(FDirName))then
+                Exit(FTreeView);
+            TThread.Synchronize(
+                nil,
+                procedure
+                begin
+                {$IFDEF ONLYTOP}
+                    if AParent is TPathItem then
+                        lResult := TPathItem(AParent).Add(ADirName)
+                    else
+                {$ENDIF}
+                        lResult := TreeViewItemPath.CreateDir(FTreeView,
+                            AParent as TFmxObject, ADirName, self.EnumFolderSearch){$IFDEF ONLYTOP}.PathItem{$ENDIF};
+                    {lItem := TTreeViewItem.Create(FTreeView);
+                    lItem.Parent := AParent as TFmxObject;
+                    lItem.Data := nil;
+                    lItem.Text := ADirName; }
+                end
+            );
+            Result := lResult;
+        end;
+    lFileProc :=
+        procedure (AFileName, AFullFileName : string; AIndex : Integer; AParent : TObject)
+        begin
+            if FSearchCancel then
+                exit;
+            TThread.Synchronize(
+                nil,
+                procedure
+                begin
+                {$IFDEF ONLYTOP}
+                    if AParent is TPathItem then
+                        TPathItem(AParent).Add(AFileName, AFullFileName)
+                    else
+                {$ENDIF}
+                        CreateFileItem(AFileName, AFullFileName, AParent);
+                end
+            );
+        end;
+        self.FTreeUtils := TTreeUtils.GetTreeUtils([], lDirFunc, lFileProc);
+end;
+
+destructor TProtoFilesTree.Destroy;
+begin
+  StopSearch;
   FFilesPatternList.Free;
   FIncludeDirList.Free;
   FExcludeDirlist.Free;
   FRtlDirList.Free;
   FreeAndNil(FSearchFiles);
-  count := 0;
-  while (FSearchThreads.Count > 0) and (count < 10) do
-  begin
-    count := count + 1;
-    lThread := FSearchThreads[0];
-    FSearchThreads.Delete(0);
+  {Task.Cancel;
+  TTask.WaitForAll(FTasks);
     TThread.Synchronize(
         nil,
         procedure
         begin
-            if Assigned(lThread) then
-                lThread.Terminate;
+            self.FSearchRunning := False;
+            if Task <> nil then
+            begin
+                //Task.Cancel;
+                TTask.WaitForAny(FTasks);
+            end;
         end
-        );
-    //FreeAndNil(lThread);
-  end;
-  FreeAndNil(FSearchThreads);
+    );}
+  FreeAndNil(FTreeUtils);
   inherited;
 end;
 
@@ -186,15 +308,7 @@ end;
 
 procedure TProtoFilesTree.Clear;
 begin
-  FSearchCancel := True;
-  FTreeView.BeginUpdate;
-  try
-    FTreeView.Clear;
-  finally
-    FTreeView.EndUpdate;
-  end;
-  FTotalFiles := 0;
-  FCountFiles := 0;
+    StopSearch;
 end;
 
 procedure TProtoFilesTree.ClearSearchOptions;
@@ -257,6 +371,11 @@ begin
   Result := String.Join(CSearchFoldersDelim, FRtlDirList.ToStringArray) ;
 end;
 
+function TProtoFilesTree.GetTask: ITask;
+begin
+    Result := FTasks[0];
+end;
+
 procedure TProtoFilesTree.EnumDirSearch(ASearchString: string; ADirName: string);
 var
   FilesArray: TStringDynArray;
@@ -296,11 +415,49 @@ begin
     self.AsynchEnumDir(lPath, LItem);
 end;
 
+procedure TProtoFilesTree.EnumFolderSearch(Sender: TObject);
+var
+    lItem, lNewItem : TreeViewItemPath;
+    lPath : string;
+    lPathItem, lMainPathItem : TPathItem;
+begin
+    lItem := Sender as TreeViewItemPath;
+    if not Assigned(lItem) then
+        exit;
+    //lPath := lItem.FPath;
+    //self.AsynchEnumDir(lPath, LItem);
+    lItem.BeginUpdate;
+    try
+        lMainPathItem := lItem.TagObject as TPathItem;
+        for lPathItem in lMainPathItem.Items do
+            if lPathItem.IsDirectory then
+            begin
+                lNewItem := TreeViewItemPath.CreateDir(FTreeView,
+                    lItem, lPathItem.FName, self.EnumFolderSearch);
+                lNewItem.TagObject := lPathItem;
+            end
+            else
+                self.CreateFileItem(lPathItem.FName, lPathItem.FFullName, lItem)
+    finally
+        lItem.EndUpdate;
+        lItem.Expand;
+    end;
+end;
+
 procedure TProtoFilesTree.EndSearch;
 begin
-    FSearchRunning := False;
-    frmMain.SearchProgressBar.Value := 0;
-    frmMain.SearchProgressBar.Repaint;
+    TThread.Synchronize(nil,
+        procedure
+        begin
+            frmMain.SearchProgressBar.Value := 0;
+            frmMain.SearchProgressBar.Repaint;
+            if FSearchCancel then
+                FTreeView.Clear;
+            FTotalFiles := 0;
+            FCountFiles := 0;
+            FSearchRunning := False;
+        end
+    );
 end;
 
 procedure TProtoFilesTree.EnumDir(ADirName: string);
@@ -358,103 +515,6 @@ begin
         AddFile(AFileName);
 end;
 
-function TProtoFilesTree.AddBuildThread : TThread;
-var
-    lDirFunc : TFunc<string, string, TFmxObject, TFmxObject>;
-    lFileProc : TProc<string, string, Integer, TFmxObject>;
-begin
-    lDirFunc :=
-            function (ADirName, AFullDirName : string; AParent : TFmxObject) : TFmxObject
-            var
-                lItem : TTreeViewItem;
-                lResult : TFmxObject;
-            begin
-                if FSearchCancel then
-                    Exit;
-                    if (not AFullDirName.Contains(FDirName))then
-                        Exit(FTreeView);
-                    TThread.Synchronize(
-                        nil,
-                        procedure
-                        begin
-                            lItem := TTreeViewItem.Create(FTreeView);
-                            lItem.Parent := AParent;
-                            lItem.Data := nil;
-                            lItem.Text := ADirName;
-                            lResult := lItem;
-                        end
-                    );
-                Result := lResult;
-            end;
-    lFileProc :=
-            procedure (AFileName, AFullFileName : string; AIndex : Integer; AParent : TFmxObject)
-            var
-                lItem : TTreeViewItem;
-                FoundCount, i : Integer;
-                lIsFound : Boolean;
-                lBodyFile : TStringList;
-            begin
-                if FSearchCancel then
-                    exit;
-                TThread.Synchronize(
-                    nil,
-                    procedure
-                    var
-                        lItem : TTreeViewItem;
-                        FoundCount, i, Percent : Integer;
-                    begin
-                        if FSearchCancel then
-                            exit;
-                        lItem := TTreeViewItem.Create(FTreeView);
-                        lItem.Data := nil;
-                        lItem.TagString := AFullFileName;
-                        lItem.Text := AFileName;
-                        lItem.TagFloat := S_MAIN_ITEM;
-                        lBodyFile := TStringList.Create;
-                        try
-                            lBodyFile.Text := TFile.ReadAllText(AFullFileName);
-                            if not FCaseSensitive then
-                                lBodyFile.Text := lBodyFile.Text.ToUpper;
-                            FoundCount := 0;
-                            for I := 0 to lBodyFile.Count - 1 do
-                            begin
-                                if FSearchCancel then
-                                    exit;
-                                lIsFound := lBodyFile[I].IndexOf(FSearchString) > -1;
-                                if lIsFound then
-                                begin
-                                    Inc(FoundCount);
-                                    if FoundCount<=10 then
-                                        AddSearchLine(IntToStr(I), lBodyFile[I], lItem);
-                                end;
-                                Application.ProcessMessages;
-                            end;
-                        finally
-                            FreeAndNil(lBodyFile);
-                        end;
-                        lItem.Tag := FoundCount;
-                        lItem.StyleLookup := 'TreeViewItemDetailStyle';
-                        lItem.OnApplyStyleLookup :=
-                          TreeViewItemApplyStyleLookup;
-                        lItem.Parent := AParent;
-                        lItem.NeedStyleLookup;
-                        StepSearch;
-                    end
-                );
-            end;
-    Result := self.AddThread
-        (
-            procedure
-            begin
-                if FSearchCancel then
-                    Exit;
-                TTreeUtils.BuildTreeFromFiles(FTreeView, Self.FSearchFiles.ToArray,
-                    lDirFunc, lFileProc);
-            end,
-            False
-        );
-end;
-
 procedure TProtoFilesTree.AddSearchLine(AFoundLine: String; AFoundString: String; AParentItem: TTreeViewItem);
 var
   LItem: TTreeViewItem;
@@ -471,18 +531,13 @@ begin
   LItem.Text := AFoundString;
 end;
 
-function TProtoFilesTree.AddThread(
-  AProc : TProc; AStart : Boolean): TThread;
-var
-    lThread : TThread;
+procedure TProtoFilesTree.AddTask(
+  AProc : TProc);
 begin
-    lThread := TThread.CreateAnonymousThread(AProc);
-    lThread.FreeOnTerminate := True;
-    lThread.OnTerminate := self.OnTerminate;
-    self.FSearchThreads.Add(lThread);
-    if AStart and lThread.Suspended then
-        lThread.Start;
-    Result := lThread;
+    if Task <> nil then
+        Task.Cancel;
+    Task := TTask.Create(AProc);
+    Task.Start;
 end;
 
 procedure TProtoFilesTree.AsynchEnumDir(ADirName: string; AItem: TTreeViewItem);
@@ -549,32 +604,35 @@ begin
 end;
 
 procedure TProtoFilesTree.AsynchEnumDirSearch(ASearchString, ADirName: string);
-var
-    FilesArray: TStringDynArray;
-    lSearchThread : TThread;
 begin
     BeginSearch;
     SearchString := ASearchString.Trim;
     FDirName := IncludeTrailingPathDelimiter(ADirName.Trim);
-    AddBuildThread;
-    lSearchThread := self.AddThread
+    AddTask
     (
         procedure
+        var
+            FilesArray: TStringDynArray;
         begin
-            FilesArray := TDirectory.GetFiles(ADirName, CAllFileMask, TSearchOption.soAllDirectories,
-                function(const Path: string;
-                      const SearchRec: TSearchRec): Boolean
-                var
-                    lFile : string;
-                begin
-                    if FSearchCancel then
-                        Exit;
-                    lFile := IncludeTrailingPathDelimiter(Path) + SearchRec.Name;
-                    SearchFilter(lFile);
-                end);
-            lSearchThread.Terminate;
-        end,
-        True
+            try
+                FilesArray := TDirectory.GetFiles(ADirName, CAllFileMask, TSearchOption.soAllDirectories,
+                    function(const Path: string;
+                          const SearchRec: TSearchRec): Boolean
+                    var
+                        lFile : string;
+                    begin
+                        if FSearchCancel then
+                            Exit;
+                        lFile := IncludeTrailingPathDelimiter(Path) + SearchRec.Name;
+                        SearchFilter(lFile);
+                    end);
+                if FSearchCancel then
+                    Exit;
+                FTreeUtils.BuildTreeFromFiles(FTreeView, Self.FSearchFiles.ToArray);
+            finally
+                EndSearch;
+            end;
+        end
     );
 end;
 
@@ -831,16 +889,7 @@ begin
 end;
 
 procedure TProtoFilesTree.OnTerminate(Sender: TObject);
-var
-    lThread : TThread;
 begin
-    lThread := TThread(Sender);
-    if Assigned(lThread) and Self.FSearchThreads.Contains(lThread) then
-        Self.FSearchThreads.Remove(lThread);
-    if FSearchThreads.Count < 1 then
-        EndSearch
-    else
-        FSearchThreads.First.Start;
 end;
 
 procedure TProtoFilesTree.SetExcludeFolders(Value: string);
@@ -900,6 +949,11 @@ begin
         FSearchString := Value;
 end;
 
+procedure TProtoFilesTree.SetTask(const Value: ITask);
+begin
+    FTasks[0] := Value;
+end;
+
 procedure TProtoFilesTree.StepSearch;
 var
   Percent: integer;
@@ -912,6 +966,21 @@ begin
         frmMain.SearchProgressBar.Value := FProgress;
     end;
     Application.ProcessMessages;
+end;
+
+procedure TProtoFilesTree.StopSearch;
+var
+    count : integer;
+begin
+  self.FSearchCancel := True;
+  self.FTreeUtils.Cancel := True;
+  count := 0;
+  while self.FSearchRunning and (count < 10) do
+  begin
+    Inc(count);
+    Application.ProcessMessages;
+    Sleep(100);
+  end;
 end;
 
 procedure TProtoFilesTree.InternalEnumDir(ADirName: string; AParentItem: TTreeViewItem);
@@ -966,6 +1035,25 @@ begin
   end;
 end;
 { TreeViewItemHelper }
+constructor TreeViewItemPath.Create(AOwner: TComponent);
+begin
+  inherited;
+    FPathItem := TPathItem.Create;
+    Self.TagObject := FPathItem;
+end;
+
+class function TreeViewItemPath.CreateDir(AOwner, AParent: TFmxObject;
+  ADirName: string; AEnumDirSearch : TNotifyEvent): TreeViewItemPath;
+begin
+    Result := TreeViewItemPath.Create(AOwner);
+    Result.Parent := AParent;
+    Result.Data := nil;
+    Result.Text := ADirName;
+{$IFDEF ONLYTOP}
+    Result.CreateFakeItem(AEnumDirSearch);
+{$ENDIF}
+end;
+
 procedure TreeViewItemPath.CreateFakeItem(AEnumDir : TNotifyEvent);
 var
     lItem : TTreeViewItem;
@@ -975,6 +1063,13 @@ begin
     LItem.Text := FAKETEXT;
     LItem.OnClick := AEnumDir;
     self.OnApplyStyleLookup := self.FolderApplyStyleLookup;
+    self.NeedStyleLookup;
+end;
+
+destructor TreeViewItemPath.Destroy;
+begin
+    FreeAndNil(FPathItem);
+  inherited;
 end;
 
 procedure TreeViewItemPath.FolderApplyStyleLookup(Sender: TObject);
@@ -1005,4 +1100,39 @@ begin
         self.IsExpanded := not Self.IsExpanded;
 end;
 
+{ TPathItem }
+constructor TPathItem.Create;
+begin
+  inherited;
+    FItems := TObjectList<TPathItem>.Create;
+end;
+
+function TPathItem.Add(AName, AFullname: string): TPathItem;
+var
+    lPathItem : TPathItem;
+begin
+    lPathItem := TPathItem.Create(AName, AFullname);
+    FItems.Add(lPathItem);
+    Result := lPathItem;
+end;
+
+constructor TPathItem.Create(AName, AFullname: string);
+begin
+    self.Create;
+    FName := AName;
+    FFullName := AFullname;
+end;
+
+destructor TPathItem.Destroy;
+begin
+    FreeAndNil(FItems);
+  inherited;
+end;
+
+function TPathItem.GetIsDirectory: Boolean;
+begin
+    Result := FFullName.IsEmpty;
+end;
+
 end.
+

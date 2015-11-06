@@ -114,43 +114,51 @@ var
     ZipHeader: TZipHeader;
     LItem: TTreeViewItem;
     LChildItem: TTreeViewItem;
+    lTreeView : TFmxObject;
     lZipFile : string;
     FArray : TArray<string>;
+    lTreeUtils : TTreeUtils;
 begin
+    lTreeView := AParent;
     FArray := AZipFile.FileNames;
-    TTreeUtils.BuildTreeFromFiles(AParent, FArray,
-        function (ADirName, AFullDirName : string; AParent : TFmxObject) : TFmxObject
+    lTreeUtils := TTreeUtils.GetTreeUtils(FArray,
+        function (ADirName, AFullDirName : string; AParent : TObject) : TObject
         begin
-            LItem := TTreeViewItem.Create(AParent);
-            LItem.Parent := AParent;
+            LItem := TTreeViewItem.Create(lTreeView);
+            LItem.Parent := AParent as TFmxObject;
             LItem.Text := ADirName;
             Result := LItem;
         end,
-        procedure (AFileName, AFullFileName : string; AIndex : Integer; AParent : TFmxObject)
+        procedure (AFileName, AFullFileName : string; AIndex : Integer; AParent : TObject)
         begin
             //lZipFile := FArray[AIndex];
-            LItem := TTreeViewItem.Create(AParent);
-            LItem.Parent := AParent;
+            LItem := TTreeViewItem.Create(lTreeView);
+            LItem.Parent := AParent as TFmxObject;
             LItem.Text := AFileName;
             LItem.Tag := AIndex;
             LItem.TagString := AFullFileName;
             ZipHeader := AZipFile.FileInfo[AIndex];
-            LChildItem := TTreeViewItem.Create(AParent);
+            LChildItem := TTreeViewItem.Create(lTreeView);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %s', ['Modified:', FormatDateTime(
             FormatSettings.ShortDateFormat + ' ' + FormatSettings.LongTimeFormat,
             FileDateToDateTime(ZipHeader.ModifiedDateTime))]);
-            LChildItem := TTreeViewItem.Create(AParent);
+            LChildItem := TTreeViewItem.Create(lTreeView);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %d', ['Compressed size:', ZipHeader.CompressedSize]);
-            LChildItem := TTreeViewItem.Create(AParent);
+            LChildItem := TTreeViewItem.Create(lTreeView);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %d', ['Uncompressed size:', ZipHeader.UncompressedSize]);
-            LChildItem := TTreeViewItem.Create(AParent);
+            LChildItem := TTreeViewItem.Create(lTreeView);
             LChildItem.Parent := LItem;
             LChildItem.Text := Format('%s %s', ['CRC32:', IntToHex(ZipHeader.CRC32, 8)]);
         end
     );
+    try
+        lTreeUtils.BuildTreeFromFiles(AParent);
+    finally
+        FreeAndNil(lTreeUtils);
+    end;
 end;
 
 procedure BindTree(const ATree : TTreeView; AFileName : string);
