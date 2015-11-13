@@ -76,7 +76,8 @@ type
     function FileFilter(const Path: string; const SearchRec: TSearchRec): boolean; inline;
     function GetTask: ITask;
 
-    procedure SetTask(const Value: ITask);  public
+    procedure SetTask(const Value: ITask);
+  public
     constructor Create(ATreeView: TTreeView);
     destructor Destroy; override;
     procedure Clear;
@@ -534,8 +535,8 @@ end;
 procedure TProtoFilesTree.AddTask(
   AProc : TProc);
 begin
-    if Task <> nil then
-        Task.Cancel;
+   if Assigned(Task) and (Task.Status = TTaskStatus.Running) then
+      Task.Cancel;
     Task := TTask.Create(AProc);
     Task.Start;
 end;
@@ -972,15 +973,18 @@ procedure TProtoFilesTree.StopSearch;
 var
     count : integer;
 begin
-  self.FSearchCancel := True;
-  self.FTreeUtils.Cancel := True;
-  count := 0;
-  while self.FSearchRunning and (count < 10) do
-  begin
-    Inc(count);
-    Application.ProcessMessages;
-    Sleep(100);
-  end;
+    self.FSearchCancel := True;
+    self.FTreeUtils.Cancel := True;
+    if Assigned(Task) and (Task.Status = TTaskStatus.Running) then
+        Task.Cancel;
+    Task := nil;
+    count := 0;
+    while self.FSearchRunning and (count < 10) do
+    begin
+        Inc(count);
+        Application.ProcessMessages;
+        Sleep(100);
+    end;
 end;
 
 procedure TProtoFilesTree.InternalEnumDir(ADirName: string; AParentItem: TTreeViewItem);
