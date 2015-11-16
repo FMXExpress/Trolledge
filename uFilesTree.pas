@@ -224,6 +224,8 @@ begin
                 nil,
                 procedure
                 begin
+                    if FSearchCancel then
+                        exit;
                 {$IFDEF ONLYTOP}
                     if AParent is TPathItem then
                         lResult := TPathItem(AParent).Add(ADirName)
@@ -248,6 +250,8 @@ begin
                 nil,
                 procedure
                 begin
+                    if FSearchCancel then
+                        exit;
                 {$IFDEF ONLYTOP}
                     if AParent is TPathItem then
                         TPathItem(AParent).Add(AFileName, AFullFileName)
@@ -268,20 +272,6 @@ begin
   FExcludeDirlist.Free;
   FRtlDirList.Free;
   FreeAndNil(FSearchFiles);
-  {Task.Cancel;
-  TTask.WaitForAll(FTasks);
-    TThread.Synchronize(
-        nil,
-        procedure
-        begin
-            self.FSearchRunning := False;
-            if Task <> nil then
-            begin
-                //Task.Cancel;
-                TTask.WaitForAny(FTasks);
-            end;
-        end
-    );}
   FreeAndNil(FTreeUtils);
   inherited;
 end;
@@ -623,9 +613,9 @@ begin
                         lFile : string;
                     begin
                         if FSearchCancel then
-                            Exit;
+                            Exit(False);
                         lFile := IncludeTrailingPathDelimiter(Path) + SearchRec.Name;
-                        SearchFilter(lFile);
+                        Result := SearchFilter(lFile);
                     end);
                 if FSearchCancel then
                     Exit;
@@ -975,9 +965,6 @@ var
 begin
     self.FSearchCancel := True;
     self.FTreeUtils.Cancel := True;
-    if Assigned(Task) and (Task.Status = TTaskStatus.Running) then
-        Task.Cancel;
-    Task := nil;
     count := 0;
     while self.FSearchRunning and (count < 10) do
     begin
@@ -985,6 +972,9 @@ begin
         Application.ProcessMessages;
         Sleep(100);
     end;
+    if Assigned(Task) and (Task.Status = TTaskStatus.Running) then
+        Task.Cancel;
+    Task := nil;
 end;
 
 procedure TProtoFilesTree.InternalEnumDir(ADirName: string; AParentItem: TTreeViewItem);

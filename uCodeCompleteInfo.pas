@@ -12,8 +12,10 @@ type
     TUsesType = (utPas, utJson);
     TSvStringTrieList<T> = class(TSvObjectStringTrie<TList<T>>)
     private
+        FNames : TArray<string>;
         procedure AddUnitItem(const AList : TList<TUnitItem>; AType : TVarType);
         procedure RemoveUnitItem(const AList : TList<TUnitItem>; AType : TVarType);
+        function GetNames: TArray<string>;
     public
         procedure AddUnits(const ASourses : TArray<TUnit>; const AUses : TArray<string>);
         procedure Add(const S: String; const AValue: T);
@@ -27,6 +29,8 @@ type
         procedure RemoveFromMethod(const AMethod : TMethod; const AParentUnit : TUnit = nil;
             const OnlyPublic : Boolean = False);
         function Find(const AName : string; var AValue : T) : Boolean;
+    public
+        property Names : TArray<string> read GetNames;
     end;
     TVar = record
         FType : TVarType;
@@ -54,7 +58,7 @@ type
         FUnitList : TArray<TUnit>;
         FCurrentUnit : TUnit;
         FCurrentMethod : TMethod;
-        FSvStringTrie : TSvObjectStringTrie<TUnit>;
+        FSvStringTrie : TSvStringTrieList<TUnit>;
         FVariablesTrie : TSvStringTrieList<TVar>;
         procedure SetCurrentUnit(const Value: TUnit);
         function GetUnitList: TArray<TUnit>;
@@ -166,7 +170,7 @@ begin
     FPlatform := 'MSWINDOWS';
     SerializerType := TSerializerType.stJSON;
     SerializerType := TSerializerType.stJDO;
-    FSvStringTrie := TSvObjectStringTrie<TUnit>.Create(False, True);
+    FSvStringTrie := TSvStringTrieList<TUnit>.Create(True, True);
     FVariablesTrie := TSvStringTrieList<TVar>.Create(False, True);
     FThread := TLifeThread<string>.Create
     (
@@ -204,7 +208,7 @@ end;
 destructor TCodeCompleteInfo.Destroy;
 var
     i : Integer;
-    LUnit : TUnit;
+    LUnit, itemUnit : TUnit;
 begin
     TThread.Synchronize(
         nil,
@@ -492,10 +496,10 @@ var
     LUnit : TUnit;
 begin
     if Assigned(APrevMethod) and
-        FSvStringTrie.TryGetValue(APrevMethod.Parent, LUnit) then
+        FSvStringTrie.Find(APrevMethod.Parent, LUnit) then
         FVariablesTrie.RemoveFromMethod(APrevMethod, LUnit);
     if Assigned(ANewMethod) and
-        FSvStringTrie.TryGetValue(ANewMethod.Parent, LUnit) then
+        FSvStringTrie.Find(ANewMethod.Parent, LUnit) then
         FVariablesTrie.LoadFromMethod(ANewMethod, LUnit);
 end;
 {------------------------------------------------------------------------------}
@@ -610,7 +614,7 @@ const
 var
     LUnit, LUnitHelper : TUnit;
     LVar, LVarHelper : TVar;
-    LFindList : TArray<string>;
+    LFindList, lNames : TArray<string>;
     LFindType, LS, LToken : string;
     LCurrentTries : TSvStringTrieList<TVar>;
     LPosPoint, LLength : Integer;
@@ -645,22 +649,27 @@ begin
         for LToken in LFindList do
         begin
             IsFindedVar := LCurrentTries.Find(LToken, LVar);
+            //temp code for debug
+            lNames := LCurrentTries.Names;
             //find in pyblic
-            IsFindedType := IsFindedVar and (FSvStringTrie.TryGetValue(LVar.FValue.FType, LUnit));
+            IsFindedType := IsFindedVar and (FSvStringTrie.Find(LVar.FValue.FType, LUnit));
             //check pointer
             if IsFindedType and (LUnit.UnitType = TUnitType.utPointer) then
-                IsFindedType := IsFindedVar and (FSvStringTrie.TryGetValue(LUnit.Parent, LUnit));
+                IsFindedType := IsFindedVar and (FSvStringTrie.Find(LUnit.Parent, LUnit));
             //find static methods
             IsStatic := IsFindedVar and (LVar.FValue.FValue = TUnit.S_UNIT_VALUE) and
-                not IsFindedType and FSvStringTrie.TryGetValue(LVar.FValue.FName, LUnit);
+                not IsFindedType and FSvStringTrie.Find(LVar.FValue.FName, LUnit);
             if IsFindedType or IsStatic then
                 LFindType := LUnit.GetClassName
             else
-                LFindType := EmptyStr;
+                if IsFindedVar then
+                    LFindType := LVar.FValue.FType
+                else
+                    LFindType := EmptyStr;
             IsFIndedVarHelper := not LFindType.IsEmpty and
                 FVariablesTrie.Find(LFindType + TConst.GUID_CLASS_HELPER, LVarHelper);
             IsFindedTypeHelper := IsFIndedVarHelper and
-                (FSvStringTrie.TryGetValue(LFindType + TConst.GUID_CLASS_HELPER, LUnitHelper));
+                (FSvStringTrie.Find(LFindType + TConst.GUID_CLASS_HELPER, LUnitHelper));
             //end
             if IsFindedType or IsStatic then
             begin
@@ -673,9 +682,12 @@ begin
             else
                 Break;
         end;
-        if IsFindedType or IsStatic then
+        if IsFindedType or IsStatic or IsFindedTypeHelper then
         begin
-            AValue := LUnit.ToList(IsStatic, AOnlyPublic);
+            if IsFindedType or IsStatic then
+                AValue := LUnit.ToList(IsStatic, AOnlyPublic)
+            else
+                AValue := TList<string>.Create;;
                 //add helper methods
             if IsFindedTypeHelper then
                 AValue.AddRange(LUnitHelper.ToList(IsStatic, AOnlyPublic).ToArray);
@@ -688,6 +700,8 @@ begin
     finally
         if not FVariablesTrie.Equals(LCurrentTries) then
             FreeAndNil(LCurrentTries);
+        if not Result then
+            FreeAndNil(AValue);
     end;
 end;
 {------------------------------------------------------------------------------}
@@ -697,6 +711,8 @@ procedure TSvStringTrieList<T>.Add(const S: String; const AValue: T);
 var
     LValue : TList<T>;
 begin
+    if s.Equals('LUnit') then
+        self.OwnsObjects := Self.OwnsObjects;
     if not TryGetValue(S, LValue, True) then
         LValue := TList<T>.Create;
     if not LValue.Contains(AValue) then
@@ -710,9 +726,11 @@ procedure TSvStringTrieList<T>.Remove(const S: string; const AValue: T);
 var
     LValue : TList<T>;
 begin
-    if not TryGetValue(S, LValue, True) then
-        LValue := TList<T>.Create;
-    if LValue.Contains(AValue) then
+    if s.Equals('LUnit') then
+        self.OwnsObjects := Self.OwnsObjects;
+    {if not TryGetValue(S, LValue, True) then
+        LValue := TList<T>.Create;   }
+    if TryGetValue(S, LValue, True) then//LValue.Contains(AValue) then
     begin
         LValue.Remove(AValue);
         if LValue.Count > 0 then
@@ -844,6 +862,20 @@ begin
     unitItemList := AUnit.GetVariables(OnlyPublic);
     RemoveUnitItem(unitItemList, LVarType);
     FreeAndNil(unitItemList);
+end;
+{------------------------------------------------------------------------------}
+function TSvStringTrieList<T>.GetNames: TArray<string>;
+var
+    enum : TSvStringTrie<TList<T>>.TPairEnumerator;
+begin
+    enum := Self.GetEnumerator;
+    try
+        while enum.MoveNext do
+            TArray.Add<string>(enum.Current.Key, Result);
+        FNames := Result;
+    finally
+        FreeAndNil(enum);
+    end;
 end;
 {------------------------------------------------------------------------------}
 { TPrevList }
