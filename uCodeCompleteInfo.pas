@@ -6,7 +6,7 @@ uses
     System.Generics.Defaults, System.IOUtils, System.Types, System.Rtti, System.Threading,
     OXmlPDOM, OXmlSAX, FMX.TreeView, SvCollections.Tries, System.DateUtils,
     uUnit, uSerializer, uHelper.SvStringTrie, uConsts,
-    uSerializerJDO, uSerializerJSON, uThread;
+    uSerializerJDO, uSerializerJSON, uThread, uUtils;
 type
     TVarType = (vtLocal, vtParam, vtClass, vtUnit, vtGlobal);
     TUsesType = (utPas, utJson);
@@ -485,8 +485,9 @@ end;
 procedure TCodeCompleteInfo.RefreshVariables;
 begin
     FreeAndNil(FVariablesTrie);
-    FVariablesTrie := TSvStringTrieList<TVar>.Create(False, True);
+    FVariablesTrie := TSvStringTrieList<TVar>.Create(True, True);
     FVariablesTrie.LoadFromUnit(False, CurrentUnit, False);
+    FVariablesTrie.LoadFromMethod(CurrentMethod, nil);
     //nedd added pyblic methods in uses units
     FVariablesTrie.AddUnits(UnitList, CurrentUnit.UsesList);
 end;
@@ -525,27 +526,19 @@ begin
 end;
 {------------------------------------------------------------------------------}
 procedure TCodeCompleteInfo.SetCurrentMethod(const Value: TMethod);
-var
-    LGUID : string;
 begin
     if Assigned(Value) then
-        LGUID := Value.FGUID
+        self.Log.Add('CurrentMethod : ' + Value.FName)
     else
-        LGUID := '{DF8483BB-144E-467C-BF3A-5D69A9769C35}';
-    if not Assigned(FCurrentMethod) or not FCurrentMethod.FGUID.Contains(LGUID) then
-    begin
-        //здесь нужно добавлять в поисковой запрос переменные
-
-        RefreshVariables(FCurrentMethod, Value);
-        FCurrentMethod := Value;
-    end;
+        self.Log.Add('CurrentMethod : nil');
+    RefreshVariables(FCurrentMethod, Value);
+    FCurrentMethod := Value;
 end;
 {------------------------------------------------------------------------------}
 procedure TCodeCompleteInfo.SetCurrentUnit(const Value: TUnit);
 begin
     FCurrentUnit := Value;
     RefreshVariables;
-    //FSvStringTrie := CreateUnitCashList(Value);
 end;
 {------------------------------------------------------------------------------}
 procedure TCodeCompleteInfo.SetCurrentPlatform(const Value: string);
@@ -571,7 +564,7 @@ function TCodeCompleteInfo.TryGetValue(const S: string;
     procedure FilterList(const ANeedFilter : Boolean; const APrevList : TList<string>;
         AFilter : string; var ANewList : TList<string>);
     var
-        LItem : string;
+        LItem, temp : string;
         LList : TList<string>;
     begin
         if not ANeedFilter then
@@ -579,8 +572,12 @@ function TCodeCompleteInfo.TryGetValue(const S: string;
         AFilter := string.LowerCase(AFilter);
         LList := TList<string>.Create;
         for LItem in APrevList do
-            if SameText(AFilter, copy(string.LowerCase(LItem), 1, AFilter.Length)) then
+        begin
+            temp := copy(LItem, 1, AFilter.Length);
+            //if SameText(AFilter, copy(string.LowerCase(LItem), 1, AFilter.Length)) then
+            if uUtils.LevenshteinDistanceCheck(AFilter, temp) then
                 LList.Add(LItem);
+        end;
         ANewList.Clear;
         ANewList.AddRange(LList);
         FreeAndNil(LList);
@@ -649,8 +646,6 @@ begin
         for LToken in LFindList do
         begin
             IsFindedVar := LCurrentTries.Find(LToken, LVar);
-            //temp code for debug
-            lNames := LCurrentTries.Names;
             //find in pyblic
             IsFindedType := IsFindedVar and (FSvStringTrie.Find(LVar.FValue.FType, LUnit));
             //check pointer
@@ -673,7 +668,7 @@ begin
             //end
             if IsFindedType or IsStatic then
             begin
-                LCurrentTries := TSvStringTrieList<TVar>.Create(False, True);
+                LCurrentTries := TSvStringTrieList<TVar>.Create(True, True);
                 LCurrentTries.LoadFromUnit(IsStatic, LUnit);
                 //add helper methods
                 if IsFindedTypeHelper then
@@ -711,8 +706,6 @@ procedure TSvStringTrieList<T>.Add(const S: String; const AValue: T);
 var
     LValue : TList<T>;
 begin
-    if s.Equals('LUnit') then
-        self.OwnsObjects := Self.OwnsObjects;
     if not TryGetValue(S, LValue, True) then
         LValue := TList<T>.Create;
     if not LValue.Contains(AValue) then
@@ -726,11 +719,7 @@ procedure TSvStringTrieList<T>.Remove(const S: string; const AValue: T);
 var
     LValue : TList<T>;
 begin
-    if s.Equals('LUnit') then
-        self.OwnsObjects := Self.OwnsObjects;
-    {if not TryGetValue(S, LValue, True) then
-        LValue := TList<T>.Create;   }
-    if TryGetValue(S, LValue, True) then//LValue.Contains(AValue) then
+    if TryGetValue(S, LValue, True) then
     begin
         LValue.Remove(AValue);
         if LValue.Count > 0 then
@@ -738,7 +727,7 @@ begin
         else
         begin
             inherited Remove(S);
-            FreeAndNil(LValue);
+            //FreeAndNil(LValue);
         end;
     end;
 end;

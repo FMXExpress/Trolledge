@@ -2042,7 +2042,7 @@ begin
   FPlugins.OnNotify := nil;
   FPlugins.SaveToFile;
   FreeAndNil(FPlugins);
-
+  FreeAndNil(FMonitoring);
   try
     Info.SaveUnits;
     FreeAndNil(FCodeList);
@@ -3439,6 +3439,11 @@ begin
   if LItem <> nil then
   begin
     LoadFrameFromFile(LItem.TagString, FSelectedFrame, ALineNumber);
+    if FSelectedFrame <> nil then
+    begin
+        FSelectedFrame.edFindText.Text := Self.TreeView2.TagString;
+        self.actFindTextExecute(nil);
+    end;
   end;
 end;
 
@@ -3993,7 +3998,7 @@ begin
             0:
             begin
                 LText := LFindList[i];
-                if OpenParam then
+                //if OpenParam then
                     LText := StringReplace(LText, FToken, '', []);
             end;
             1: LDesc := LFindList[i];
@@ -4060,7 +4065,7 @@ begin
         // space create error fro TMSMEMO(
         AList.Text := StringReplace(AList.Text,' ', TConst.SPACE_REPLACE, [rfReplaceAll]);
         AList.Text := stringreplace(AList.Text, TConst.AST_STRING_BUG, TConst.AST_STRING_FIX, [rfReplaceAll]);
-        if OpenParam then
+        //if OpenParam then
             for i := 0 to AList.Count - 1 do
                 AList[i] := FToken + AList[i];
         FreeAndNil(LList);

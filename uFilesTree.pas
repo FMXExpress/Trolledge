@@ -938,6 +938,7 @@ begin
         FSearchString := Value.ToUpper
     else
         FSearchString := Value;
+    Self.FTreeView.TagString := Value;
 end;
 
 procedure TProtoFilesTree.SetTask(const Value: ITask);

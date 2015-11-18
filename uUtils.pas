@@ -30,7 +30,8 @@ uses
 {$ENDIF IOS}
 {$ENDIF ANDROID}
   ;
-
+function LevenshteinDistanceCheck(ASubStr, AStr : String;
+    ADiffCount : integer = 2) : Boolean; //inline;
 function SelectDirectory(const ATitle: string; var ADir: string; FormHandle: THandle = 0): boolean;
 function OpenURL(const URL: string; const DisplayError: Boolean = False): Boolean;
 function GetFileVersionStr: string;
@@ -59,6 +60,53 @@ begin
   Result := 0;
 end;
 {$ENDIF MSWINDOWS}
+
+function LevenshteinDistanceCheck(ASubStr, AStr : String; ADiffCount : integer) : Boolean;
+var
+    Length1, Length2      : Integer;
+    WorkMatrix            : array of array of Integer;
+    I, J                  : Integer;
+    Cost, Distance        : Integer;
+    Val1, Val2, Val3      : Integer;
+begin
+    ASubStr := ASubStr.ToUpper;
+    AStr := AStr.ToUpper;
+    Length1 := Length (ASubStr);
+    Length2 := Length (AStr);
+    if Length1 < ADiffCount + 1 then
+    begin
+        Result := SameText(ASubStr, copy(AStr, 1, Length1));
+        Exit;
+    end;
+    SetLength (WorkMatrix, Length1+1, Length2+1);
+    for I := 0 to Length1 do
+      WorkMatrix [I, 0] := I;
+    for J := 0 to Length2 do
+      WorkMatrix [0, J] := J;
+    for I := 1 to Length1 do
+      for J := 1 to Length2 do
+        begin
+        if (ASubStr [I] = AStr [J]) then
+          Cost := 0
+        else
+          Cost := 1;
+        Val1 := WorkMatrix [I-1, J] + 1;
+        Val2 := WorkMatrix [I, J-1] + 1;
+        Val3 := WorkMatrix[I-1, J-1] + Cost;
+        if (Val1 < Val2) then
+          if (Val1 < Val3) then
+            WorkMatrix [I, J] := Val1
+          else
+            WorkMatrix [I, J] := Val3
+        else
+          if (Val2 < Val3) then
+            WorkMatrix [I, J] := Val2
+          else
+            WorkMatrix [I, J] := Val3;
+        end;
+    Distance := WorkMatrix [Length1, Length2];
+    Result := (Distance - Abs(Length1 - Length2)) < (ADiffCount + 1);
+end;
 
 function SelectDirectory(const ATitle: string;
   var ADir: string; FormHandle: THandle): boolean;
