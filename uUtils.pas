@@ -69,6 +69,8 @@ var
     Cost, Distance        : Integer;
     Val1, Val2, Val3      : Integer;
 begin
+    if AStr.IsEmpty then
+        Exit(False);
     ASubStr := ASubStr.ToUpper;
     AStr := AStr.ToUpper;
     Length1 := Length (ASubStr);
@@ -105,7 +107,7 @@ begin
             WorkMatrix [I, J] := Val3;
         end;
     Distance := WorkMatrix [Length1, Length2];
-    Result := (Distance - Abs(Length1 - Length2)) < (ADiffCount + 1);
+    Result := (Distance {- Abs(Length1 - Length2)}) < (ADiffCount + 1);
 end;
 
 function SelectDirectory(const ATitle: string;

@@ -44,6 +44,7 @@ type
     TArrayHelper = class helper for TArray
     public
         class procedure Add<T>(const AValue : T; var AValues: TArray<T>);
+        class procedure Free<T>(AValues: TArray<T>);
     end;
 implementation
 
@@ -414,6 +415,23 @@ begin
     LastIndex := Length(AValues) + 1;
     SetLength(AValues, LastIndex);
     AValues[LastIndex - 1] := AValue;
+end;
+{------------------------------------------------------------------------------}
+class procedure TArrayHelper.Free<T>(AValues: TArray<T>);
+var
+    lItem : T;
+    i : integer;
+    temp : string;
+begin
+    for i := Low(AValues) to High(AValues) do
+    begin
+        try
+            lItem := AValues[i];
+            FreeAndNil(lItem);
+        except on e : Exception do
+            temp := e.Message;
+        end;
+    end;
 end;
 {------------------------------------------------------------------------------}
 end.

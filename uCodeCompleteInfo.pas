@@ -171,7 +171,7 @@ begin
     SerializerType := TSerializerType.stJSON;
     SerializerType := TSerializerType.stJDO;
     FSvStringTrie := TSvStringTrieList<TUnit>.Create(True, True);
-    FVariablesTrie := TSvStringTrieList<TVar>.Create(False, True);
+    FVariablesTrie := TSvStringTrieList<TVar>.Create(True, True);
     FThread := TLifeThread<string>.Create
     (
         function (AValue : string) : Boolean
@@ -219,13 +219,14 @@ begin
         );
     //FThread.WaitFor;
     FreeAndNil(FThread);
-    FreeAndNil(FCurrentUnit);
-    FreeAndNil(FCurrentMethod);
     FreeAndNil(FPathList);
     FreeAndNil(FLog);
     FreeAndNil(FSvStringTrie);
     FreeAndNil(FVariablesTrie);
     FreeAndNil(FSerializer);
+    TArray.Free<TUnit>(FUnitList);
+    //FreeAndNil(FCurrentUnit);
+    //FreeAndNil(FCurrentMethod);
     SetLength(FUnitList, 0);
   inherited;
 end;
@@ -367,8 +368,12 @@ var
     LTask : ITask;
 begin
     LMissList := CreateMissUsesList(AUnit.UsesList);
-    if Assigned(FThread) then
-        FThread.AddTask(LMissList.ToArray);
+    try
+        if Assigned(FThread) then
+            FThread.AddTask(LMissList.ToArray);
+    finally
+        FreeAndNil(LMissList);
+    end;
 end;
 {------------------------------------------------------------------------------}
 procedure TCodeCompleteInfo.LoadUnit(const AFileName: string);
@@ -427,7 +432,7 @@ var
 begin
     Result := False;
     LNow := Now;
-    LUnit := nil;
+    //LUnit := nil;
     LUnit := TUnit.LoadFromASTXml(AXml);
     LmSecCount := MilliSecondsBetween(Now, LNow);
     FLog.Add('TUnit.LoadFromASTXml Time(mc) : ' + string.Parse(LmSecCount));
@@ -573,7 +578,7 @@ function TCodeCompleteInfo.TryGetValue(const S: string;
         LList := TList<string>.Create;
         for LItem in APrevList do
         begin
-            temp := copy(LItem, 1, AFilter.Length);
+            temp := copy(LItem.Trim, 1, AFilter.Length);
             //if SameText(AFilter, copy(string.LowerCase(LItem), 1, AFilter.Length)) then
             if uUtils.LevenshteinDistanceCheck(AFilter, temp) then
                 LList.Add(LItem);
@@ -682,13 +687,21 @@ begin
             if IsFindedType or IsStatic then
                 AValue := LUnit.ToList(IsStatic, AOnlyPublic)
             else
-                AValue := TList<string>.Create;;
+                AValue := TList<string>.Create;
                 //add helper methods
             if IsFindedTypeHelper then
                 AValue.AddRange(LUnitHelper.ToList(IsStatic, AOnlyPublic).ToArray);
             FilterList(LNeedFilter, AValue, LFilter, AValue);
             ParamCheck(AParams, AValue);
             FPrevList.FList := AValue.ToArray;
+            Exit(AValue.Count > 0);
+        end;
+        //check variables
+        if LNeedFilter and (Length(LFindList) = 0) then
+        begin
+            AValue := TList<string>.Create;
+            AValue.AddRange(LCurrentTries.Names);
+            FilterList(LNeedFilter, AValue, LFilter, AValue);
             Exit(AValue.Count > 0);
         end;
         Exit(false);

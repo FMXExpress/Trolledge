@@ -313,16 +313,19 @@ begin
     LNodeList := nil;
     TParser.GetChildXMLNodeList(AXML, LNodeList);
     LUnit := TUnit.Create(LNodeList);
-    if LUnit.Sections.Count > 0 then
-    begin
-        LUnitSection := LUnit.Sections[0];
-        //FUnitSection := LUnitSection;
-        Self.FConsts := LUnitSection.Consts;
-        Self.FVariables := LUnitSection.Variables;
-        Self.FMethods := LUnitSection.Methods;
-        Self.FClasses := LUnitSection.Classes;
+    try
+        if LUnit.Sections.Count > 0 then
+        begin
+            LUnitSection := LUnit.Sections[0];
+            //FUnitSection := LUnitSection;
+            Self.FConsts := LUnitSection.Consts;
+            Self.FVariables := LUnitSection.Variables;
+            Self.FMethods := LUnitSection.Methods;
+            Self.FClasses := LUnitSection.Classes;
+        end;
+    finally
+        FreeAndNil(LUnit);
     end;
-    FreeAndNil(LUnit);
     Result := True;
 end;
 {------------------------------------------------------------------------------}
@@ -410,8 +413,8 @@ end;
 destructor TUnit.Destroy;
 begin
     SetLength(FUsesList, 0);
-    FSections.Free;
-    //FreeAndNil(FSections);
+    //FSections.Free;
+    FreeAndNil(FSections);
     SetLength(FIdentifiers, 0);
   inherited;
 end;
@@ -480,13 +483,20 @@ function TUnit.GetVariables(const OnlyPublic: Boolean; const OnlyStatic :
     Boolean): TList<TUnitItem>;
 var
     LUnitSection : TUnit.TUnitSection;
-    List : TList<TUnitItem>;
+    List, lVariables : TList<TUnitItem>;
     LSections : TList<TUnitSection>;
 begin
     LSections := GetSections(OnlyPublic);
     list := TList<TUnitItem>.Create;
     for LUnitSection in LSections do
-        list.AddRange(LUnitSection.GetVariables(OnlyStatic).ToArray);
+    begin
+        lVariables := LUnitSection.GetVariables(OnlyStatic);
+        try
+            list.AddRange(lVariables);
+        finally
+            FreeAndNil(lVariables);
+        end;
+    end;
     FreeAndNil(LSections);
     Result := list;
 end;
@@ -527,7 +537,6 @@ end;
 {------------------------------------------------------------------------------}
 class function TUnit.LoadFromASTXml(const AXML: string): TUnit;
 var
-    LUnit : TUnit;
     XML: IXMLDocument;
     Root : PXMLNode;
     XMLUnit, XMLUsesList,
@@ -552,35 +561,36 @@ begin
         [XMLTypeDecl, XMLMethods, XMLMethodsDescription, XMLVars, XMLConsts, XMLUnit,
             nil, nil, nil, nil],
         DictNames);
-    LUnit := TUnit.LoadFromDict(LDict, TUnitType.utUnit);
-    LUnit.LoadUses(XMLUsesList);
-    if LUnit.IsEMpty then
-        FreeAndNil(LUnit);
+    Result := TUnit.LoadFromDict(LDict, TUnitType.utUnit);
+    //Result.LoadUses(XMLUsesList);
+    if Assigned(Result) then
+        Result.LoadUses(XMLUsesList);
     FreeAndNil(LDict);
-    Result := LUnit;
 end;
 {------------------------------------------------------------------------------}
 class function TUnit.LoadFromDict(const ADict : TDictnStringXMLList; UnitType : TUnitType) : TUnit;
 var
-    LUnit : TUnit;
     AXML : PXMLNode;
     LList : IXMLNodeList;
 begin
-    LUnit := TUnit.Create;
-    LUnit.ParentSection := nil;
-    LUnit.FUnitType := UnitType;
-    if ADict.TryGetValue(DictNames[5], LList) then
-        AXML := LList.GetFirst
-    else
-        AXML := nil;
-    LUnit.ParseHeader(AXML);
-    TUnitSection.LoadFromDict(ADict, TSection.scNone, LUnit);
-    Result := LUnit;
+    Result := nil;
+    if not ADict.TryGetValue(DictNames[5], LList) then
+        Exit;
+    AXML := LList.GetFirst;
+    Result := TUnit.Create;
+    Result.ParentSection := nil;
+    Result.FUnitType := UnitType;
+    Result.ParseHeader(AXML);
+    if Result.IsEMpty then
+    begin
+        FreeAndNil(Result);
+        Exit;
+    end;
+    TUnitSection.LoadFromDict(ADict, TSection.scNone, Result);
 end;
 {------------------------------------------------------------------------------}
 class function TUnit.LoadFromXMLNode(const ANode : PXMLNode) : TUnit;
 var
-    LUnit : TUnit;
     LDict : TDictnStringXMLList;
     count : integer;
 begin
@@ -588,11 +598,8 @@ begin
     if count < 1 then
         Exit(nil);
     LDict := TUnit.CreateDict(ANode);
-    LUnit := TUnit.LoadFromDict(LDict, TUnitType.utClass);
-    if LUnit.IsEMpty then
-        FreeAndNil(LUnit);
+    Result := TUnit.LoadFromDict(LDict, TUnitType.utClass);
     FreeAndNil(LDict);
-    Result := LUnit;
 end;
 {------------------------------------------------------------------------------}
 class function TUnit.CreateDict(const ANode : PXMLNode; NeedChild : Boolean) : TDictnStringXMLList;
@@ -678,15 +685,24 @@ end;
 function TUnit.ToList(const IsStatic : Boolean; const OnlyPublic : Boolean) :
     TList<string>;
 var
-    list : TList<string>;
+    list, lVariables : TList<string>;
     sections : TList<TUnitSection>;
     section : TUnitSection;
 begin
     list := TList<string>.Create;
     sections := GetSections(OnlyPublic);
     for section in sections do
-        list.AddRange(section.ToList(IsStatic).ToArray);
+    begin
+        lVariables := section.ToList(IsStatic);
+        try
+            list.AddRange(lVariables);
+        finally
+            FreeAndNil(lVariables);
+        end;
+    end;
     FreeAndNil(sections);
+    if Self.FUnitType = TUnitType.utEnum then
+        list.AddRange(self.FIdentifiers);
     Result := list;
 end;
 {------------------------------------------------------------------------------}
@@ -734,10 +750,13 @@ destructor TUnit.TUnitSection.Destroy;
 begin
     SetLength(FConsts, 0);
     SetLength(FVariables, 0);
+    TArray.Free<TMethod>(FMethods);
     SetLength(FMethods, 0);
+    TArray.Free<TUnit>(FClasses);
     SetLength(FClasses, 0);
     SetLength(FFields, 0);
     SetLength(FProperties, 0);
+    TArray.Free<TMethod>(FMethodsDescription);
     SetLength(FMethodsDescription, 0);
   inherited;
 end;

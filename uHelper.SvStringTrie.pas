@@ -20,11 +20,15 @@ var
     LUnitList : TList<TPairStringObject>;
 begin
     LUnitList := AUnit.ToList(AOnlyPublic);
-    for tempPair in LUnitList do
-    begin
-        tempUnit := TUnit(tempPair.Value);
-        if Assigned(tempUnit) and not tempPair.Key.IsEmpty then
-            self.Add(tempPair.Key, tempUnit);
+    try
+        for tempPair in LUnitList do
+        begin
+            tempUnit := TUnit(tempPair.Value);
+            if Assigned(tempUnit) and not tempPair.Key.IsEmpty then
+                self.Add(tempPair.Key, tempUnit);
+        end;
+    finally
+        FreeAndNil(LUnitList);
     end;
 end;
 {------------------------------------------------------------------------------}
