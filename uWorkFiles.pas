@@ -17,18 +17,21 @@ type
     FTreeViewItem: TTreeViewItem;
     FStream: TMemoryStream;
     FModified: boolean;
+    FFileChanged : Boolean;
     FStyler: TTMSFMXMemoCustomStyler;
     FFileType: TFileType;
     function GetFileName: string;
     function GetTag: integer;
     procedure SetFileName(Value: string);
     procedure SetTag(Value: integer);
+    procedure SetModified(const Value: boolean);
   public
     constructor Create(AWorkTree: TWorkFilesTree; AFilename: string;
       AFileType: TFileType; AFrameTag: integer);
     destructor Destroy; override;
     procedure SaveToFile;
-    property Modified: boolean read FModified write FModified;
+    property Modified: boolean read FModified write SetModified;
+    property FileChanged: boolean read FFileChanged write FFileChanged;
     property FileName: string read GetFileName write SetFileName;
     property Styler: TTMSFMXMemoCustomStyler read FStyler write FStyler;
     property Stream: TMemoryStream read FStream write FStream;
@@ -50,13 +53,18 @@ type
   public
     constructor Create(ATreeView: TTreeView);
     destructor Destroy; override;
+
     procedure AddToWorkList(AFileName: string; AFileType: TFileType; AFrameTag: integer);
     procedure DeleteFromWorkList(AFileName: string; AFrameTag: integer);
+    procedure MoveToMemoStream(AFrame: TMemoFrame);
+    procedure RenameWorkItem(AOldFileName, ANewFileName: string; AFrameTag: integer);
+    procedure SetFileChanges(AFileName: string; AEnabled : Boolean = False);
+    procedure ReloadStream(AFileName : string);
+
     function IndexOfByFileName(AFileName: string): integer;
     function WorkItemByFileName(AFileName: string): TWorkItem;
     function FilenameExists(AFileName: string; AFrameTag: integer): boolean;
-    procedure MoveToMemoStream(AFrame: TMemoFrame);
-    procedure RenameWorkItem(AOldFileName, ANewFileName: string; AFrameTag: integer);
+
     property ModifiedCount: integer read GetModifiedCount;
   end;
 
@@ -215,6 +223,7 @@ begin
       Litem.Stream.Clear;
       if AFrame.FMemoChanged or AFrame.TMSFMXMemo1.Modified then
         LItem.Modified := True;
+      LItem.FFileChanged := AFrame.FFileChanged;
       LItem.Styler := AFrame.TMSFMXMemo1.SyntaxStyles;
       AFrame.TMSFMXMemo1.Lines.SaveToStream(FWorkList[N].Stream);
     end;
@@ -222,6 +231,17 @@ begin
     On E: Exception do
       ShowMessage(E.Message);
   end;
+end;
+
+procedure TWorkFilesTree.ReloadStream(AFileName: string);
+var
+    LWorkItem : TWorkItem;
+begin
+    LWorkItem := WorkItemByFileName(AFileName);
+    if (LWorkItem <> nil) and TFile.Exists(AFileName) then
+    begin
+        LWorkItem.Stream.LoadFromFile(AFileName);
+    end;
 end;
 
 procedure TWorkFilesTree.RenameWorkItem(AOldFileName, ANewFileName: string;
@@ -293,6 +313,15 @@ begin
   inherited;
 end;
 
+procedure TWorkFilesTree.SetFileChanges(AFileName: string; AEnabled : Boolean);
+var
+    LWorkItem : TWorkItem;
+begin
+    LWorkItem := WorkItemByFileName(AFileName);
+    if LWorkItem <> nil then
+        LWorkItem.FileChanged := AEnabled;
+end;
+
 { TWorkItem }
 
 constructor TWorkItem.Create(AWorkTree: TWorkFilesTree; AFilename: string;
@@ -304,6 +333,7 @@ begin
 
   FFileType := AFileType;
   FModified := False;
+  FileChanged := False;
   FStyler := nil;
   FTreeViewItem := TTreeViewItem.Create(AWorkTree.FTreeView);
   FTreeViewItem.Parent := AWorkTree.FTreeView.Items[0];
@@ -359,6 +389,14 @@ procedure TWorkItem.SetFileName(Value: string);
 begin
   FTreeViewItem.Text := TPath.GetFileName(Value);
   FTreeViewItem.TagString := Value;
+end;
+
+procedure TWorkItem.SetModified(const Value: boolean);
+begin
+  FModified := Value;
+  //set flag after save events.... if Modified = false not only after save - need change logic
+  if not Value then
+    FFileChanged := False;
 end;
 
 procedure TWorkItem.SetTag(Value: integer);

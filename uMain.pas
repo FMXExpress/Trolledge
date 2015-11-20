@@ -1140,6 +1140,8 @@ begin
     if not Assigned(lMemoFrame) then
         Exit;
     lMemoFrame.FFileChanged := False;
+    WorkFilesTree.SetFileChanges(lMemoFrame.FPredFileName);
+    WorkFilesTree.ReloadStream(lMemoFrame.FPredFileName);
     //need create //temp
     try
         if TFile.Exists(lMemoFrame.FPredFileName) then
@@ -1152,6 +1154,7 @@ begin
         end;
     except
         lMemoFrame.FFileChanged := True;
+        WorkFilesTree.SetFileChanges(lMemoFrame.FPredFileName, True);
     end
 end;
 
@@ -2715,7 +2718,7 @@ begin
     else
      begin
       LItem := WorkFilesTree.WorkItemByFileName(AFileName);
-      if (LItem <> nil) and (SameText(FSelectedFrame.FPredFileName, AFileName)) then
+      if (LItem <> nil) then//and (SameText(FSelectedFrame.FPredFileName, AFileName)) then
       begin
         LItem.Stream.Seek(0, TSeekOrigin.soBeginning);
         if LItem.Stream.Size = 0 then
@@ -2728,6 +2731,7 @@ begin
         FSelectedMemo.SyntaxStyles := LItem.Styler;
         FSelectedMemo.Modified := LItem.Modified;
         FSelectedFrame.FMemoChanged := LItem.Modified;
+        FSelectedFrame.FFileChanged := LItem.FileChanged;
       end else
       begin
         FSelectedMemo.Lines.LoadFromFile(AFilename);
@@ -2735,6 +2739,7 @@ begin
         LFileExt := TPath.GetExtension(AFileName);
         FSelectedMemo.SyntaxStyles := GetSyntaxStyler(LFileExt);
         FSelectedFrame.FMemoChanged := False;
+        FSelectedFrame.FFileChanged := False;
       end;
      end;
 
@@ -3062,6 +3067,7 @@ begin
     FSelectedMemo.Clear;
     FSelectedMemo.ClearUndoRedo;
     FSelectedFrame.FMemoChanged := False;
+    FSelectedFrame.FFileChanged := False;
     FSelectedMemo.SetCursor(0, 0);
     SDefFileName := NewDefFileName;
     AddToHistoryList(SDefFileName);
@@ -3911,7 +3917,11 @@ begin
               // Reload file
               mrYes: actReloadFrameExecute(AMemoFrame);
               // No save. Lose changes.
-              mrNo: AMemoFrame.FFileChanged := False;
+              mrNo:
+              begin
+                AMemoFrame.FFileChanged := False;
+                WorkFilesTree.SetFileChanges(AMemoFrame.FPredFileName);
+              end;
             end;
 {$IF DEFINED(MSWINDOWS) OR (DEFINED(MACOS) AND NOT DEFINED(IOS))}
 {$ELSE}
@@ -3931,6 +3941,7 @@ begin
                 lMemoFrame.FFileChanged := True;
         end
     );
+    WorkFilesTree.SetFileChanges(AFName.Trim, True);
 end;
 
 function TfrmMain.GetWidthText(AObj : TText): Single;
