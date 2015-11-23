@@ -3347,7 +3347,9 @@ var
   FT: TFileType;
 begin
   //restart monitoring
-  FMonitoring.StopWatch(AMemoFrame.FPredFileName);
+  WorkItem := WorkFilesTree.WorkItemByFileName(AMemoFrame.FPredFileName);
+  if (WorkItem = nil) then
+    FMonitoring.StopWatch(AMemoFrame.FPredFileName);
   AMemoFrame.FFileChanged := False;
   FMonitoring.StartWatch(AFileName);
   if MemoFrameVisibleCount = 0 then
