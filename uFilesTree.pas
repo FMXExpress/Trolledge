@@ -167,6 +167,7 @@ var
     FoundCount, i : Integer;
     lBodyFile : TStringList;
     lIsFound : Boolean;
+    lTextLine : string;
 begin
     if FSearchCancel then
         exit;
@@ -178,14 +179,15 @@ begin
     lBodyFile := TStringList.Create;
     try
         lBodyFile.Text := TFile.ReadAllText(AFullName);
-        if not FCaseSensitive then
-            lBodyFile.Text := lBodyFile.Text.ToUpper;
         FoundCount := 0;
         for I := 0 to lBodyFile.Count - 1 do
         begin
             if FSearchCancel then
                 exit;
-            lIsFound := lBodyFile[I].IndexOf(FSearchString) > -1;
+            lTextLine := lBodyFile[I];
+            if not FCaseSensitive then
+                lTextLine := lTextLine.ToUpper;
+            lIsFound := lTextLine.IndexOf(FSearchString) > -1;
             if lIsFound then
             begin
                 Inc(FoundCount);
