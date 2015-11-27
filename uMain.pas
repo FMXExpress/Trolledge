@@ -25,8 +25,6 @@ uses
   ;
 
 type
-  TGotoKind = (gtFile = 1, gtLine, gtCommand, gtCode);
-
   TMemoSettings = record
     FShowActiveLine: boolean;
     FShowActiveIndicator: boolean;
@@ -886,6 +884,8 @@ begin
     end;
 
     VictimFrame.Visible := False;
+    GoToListHide(VictimFrame);
+    //VictimFrame.pnlGoto.Visible := False;
     //Application.ProcessMessages;
     //VictimFrame.TMSFMXMemo1.Lines.Clear;
     VictimFrame.TMSFMXMemo1.Lines.Text := string.Empty;
@@ -2295,13 +2295,14 @@ begin
   if AMemoFrame <> nil then
   begin
     // Tag property sets by GoToListShow method
-    case AMemoFrame.edGoToFilter.Tag of
+    case AMemoFrame.GotoKind of
       // GoTo FileName
-      1: begin
+      gtFile: begin
            if Sender is TEdit then
            begin
             if Trim(AMemoFrame.edGoToFilter.Text) = EmptyStr then
-              raise Exception.Create('Empty file name!');
+              //raise Exception.Create('Empty file name!');
+              exit;
 
             for LItem in AMemoFrame.ListView1.Items do
               if SameText(AMemoFrame.edGoToFilter.Text, LItem.Text) then
@@ -2320,7 +2321,7 @@ begin
             end;
           end;
       // GoTo LineNumber
-      2: begin
+      gtLine: begin
           if not TryStrToInt(AMemoFrame.edGoToFilter.Text, LineNumber) then
             ShowMessage('Invalid line number: ' + AMemoFrame.edGoToFilter.Text)
           else
@@ -2330,11 +2331,11 @@ begin
           end;
       end;
       // GoTo Command
-      3: begin
+      gtCommand: begin
           GoToListCommand(AMemoFrame);
       end;
       // GoTo Code
-      4: begin
+      gtCode: begin
           if Sender is TEdit then
           begin
             S := Trim(AMemoFrame.edGoToFilter.Text);
@@ -2394,16 +2395,17 @@ end;
 
 procedure TfrmMain.GoToListShow(GotoKind: TGotoKind; AMemoFrame: TMemoFrame = nil);
 var
-  SFile: string;
+  SFile, lItemText: string;
   SArray: TstringDynArray;
   LItem: TListViewItem;
 begin
   if AMemoFrame = nil then AMemoFrame := FSelectedFrame;
   if AMemoFrame <> nil then
   begin
+    AMemoFrame.GotoKind := GotoKind;
     case GotoKind of
       gtFile: begin
-                AMemoFrame.edGoToFilter.Tag := 1;
+                //AMemoFrame.edGoToFilter.Tag := 1;
                 AMemoFrame.lbGoToHint.Text := 'Type a file name.';
                 AMemoFrame.ListView1.BeginUpdate;
                 try
@@ -2425,7 +2427,7 @@ begin
                 end;
               end;
       gtLine: begin
-                AMemoFrame.edGoToFilter.Tag := 2;
+                //AMemoFrame.edGoToFilter.Tag := 2;
                 AMemoFrame.ListView1.Items.Clear;
                 AMemoFrame.ListView1.ItemAppearance.ItemHeight := 44;
                 AMemoFrame.ListView1.ItemEditAppearanceName := 'ImageListItemBottomDetail';
@@ -2436,7 +2438,7 @@ begin
                   AMemoFrame.lbGoToHint.Text := 'Type a line number.';
               end;
       gtCommand: begin
-                  AMemoFrame.edGoToFilter.Tag := 3;
+                  //AMemoFrame.edGoToFilter.Tag := 3;
                   AMemoFrame.ListView1.BeginUpdate;
                   AMemoFrame.lbGoToHint.Text := 'Select a command.';
                   try
@@ -2446,8 +2448,14 @@ begin
                     Self.duck.all.isa(TAction).each(
                       procedure(obj: TObject)
                       begin
+                        //hide system actions  (e.g. reloadframe)
+                        if not TAction(obj).Visible then
+                            exit;
                         LItem := AMemoFrame.ListView1.Items.Add;
-                        LItem.Text := TAction(obj).Hint;
+                        lItemText := TAction(obj).Hint;
+                        if lItemText.IsEmpty then
+                            lItemText := TAction(obj).Text;
+                        LItem.Text := lItemText;
                       end
                     );
                   finally
@@ -2455,7 +2463,7 @@ begin
                   end;
                  end;
       gtCode: begin
-                AMemoFrame.edGoToFilter.Tag := 4;
+                //AMemoFrame.edGoToFilter.Tag := 4;
                 AMemoFrame.lbGoToHint.Text := 'Goto Code';
                 AMemoFrame.ListView1.BeginUpdate;
                 try

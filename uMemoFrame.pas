@@ -11,6 +11,8 @@ uses
   FMX.ListView.Adapters.Base;
 
 type
+  TGotoKind = (gtFile = 1, gtLine, gtCommand, gtCode);
+
   TMemoFrame = class(TFrame)
     pnlMemoStatus: TPanel;
     lbFileName: TLabel;
@@ -57,8 +59,10 @@ type
     FCanDrop: boolean;
     FOnAfterSave : TNotifyEvent;
     FSaveFileName : string;
+    FGotoKind: TGotoKind;
     procedure DoOnAfterSave;
-  public
+
+    procedure SetGotoKind(const Value: TGotoKind);  public
     { Public declarations }
     FMemoChanged: Boolean;
     FFileChanged : Boolean;
@@ -75,6 +79,7 @@ type
   public
     property OnAfterSave : TNotifyEvent read FOnAfterSave write FOnAfterSave;
     property SaveFileName : string read FSaveFileName;
+    property  GotoKind : TGotoKind read FGotoKind write SetGotoKind;
   end;
 
 implementation
@@ -111,7 +116,11 @@ procedure TMemoFrame.edGoToFilterKeyDown(Sender: TObject; var Key: Word;
 begin
   case Key of
     vkEscape: frmMain.GoToListHide(Self);
-    vkReturn: frmMain.GoToListExec(Sender, Self);
+    vkReturn:
+        if Assigned(self.ListView1.Selected) then
+            frmMain.GoToListExec(self.ListView1, Self)
+        else
+            frmMain.GoToListExec(Sender, Self);
     vkUp, vkDown: frmMain.GoToListUpDown(Key, self);
   end;
 end;
@@ -174,6 +183,11 @@ begin
     DoOnAfterSave;
     TMSFMXMemo1.Lines.SaveToFile(AFileName);
     FFileChanged := False;
+end;
+
+procedure TMemoFrame.SetGotoKind(const Value: TGotoKind);
+begin
+  FGotoKind := Value;
 end;
 
 procedure TMemoFrame.TMSFMXMemo1ApplyStyleLookup(Sender: TObject);

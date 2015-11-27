@@ -13886,22 +13886,27 @@ object frmMain: TfrmMain
     end
     object actRemovePlugin: TAction
       Category = 'Plugins'
-      Text = 'actRemovePlugin'
+      Text = 'Remove Plugin'
+      Hint = 'Remove Plugin'
       OnExecute = actRemovePluginExecute
     end
     object actOpenZipFile: TAction
       Category = 'MainProgram'
-      Text = 'actOpenZipFile'
+      Text = 'Open ZipFile'
+      Visible = False
       OnExecute = actOpenZipFileExecute
     end
     object actOnAfterSaveMemo: TAction
       Category = 'MainProgram'
       Text = 'actOnAfterSaveMemo'
+      Visible = False
       OnExecute = actOnAfterSaveMemoExecute
     end
     object actReloadFrame: TAction
       Category = 'MainProgram'
-      Text = 'actReloadFrame'
+      Text = 'Reload Frame'
+      Hint = 'Reload Frame'
+      Visible = False
       OnExecute = actReloadFrameExecute
     end
   end
