@@ -81,7 +81,8 @@ type
     property SaveFileName : string read FSaveFileName;
     property  GotoKind : TGotoKind read FGotoKind write SetGotoKind;
   end;
-
+const
+    BTM_MARGID = 200;
 implementation
 
 {$R *.fmx}
@@ -188,6 +189,20 @@ end;
 procedure TMemoFrame.SetGotoKind(const Value: TGotoKind);
 begin
   FGotoKind := Value;
+  case Value of
+    gtLine :
+    begin
+        pnlGoTo.Align := TAlignLayout.MostTop;
+        pnlGoTo.Height := self.ListView1.Position.Y;
+        pnlGoTo.Margins.Bottom := - (pnlGoTo.Margins.Top + pnlGoTo.Height);
+    end;
+  else
+      begin
+        pnlGoTo.Align := TAlignLayout.Contents;
+        pnlGoTo.Margins.Bottom := BTM_MARGID;
+      end;
+  end;
+  pnlGoTo.BringToFront;
 end;
 
 procedure TMemoFrame.TMSFMXMemo1ApplyStyleLookup(Sender: TObject);
