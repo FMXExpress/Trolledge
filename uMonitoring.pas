@@ -69,7 +69,7 @@ type
     FIgnoreFiles : TList<string>;
     FOnFileChanges : TFileChange;
     procedure DoOnFileChanges(const AFName : string);
-    procedure StartTimer; inline;
+    procedure StartTimer; //inline;
     procedure OnTimer(Sender: TObject);
     procedure TrySetChanges(const AFName : string);
     procedure InitTimer;
@@ -165,18 +165,6 @@ begin
     FFiles.Items[AFName] := True;
 end;
 
-{$REGION 'WINDOWS'}
-{$IFDEF MSWINDOWS}
-procedure TMonitoring.InfoCallback(pInfo: TInfoCallback);
-var
-    lFName : string;
-begin
-    if pInfo.FAction <> FILE_ACTION_MODIFIED then
-        exit;
-    lFName := pInfo.FDrive + pInfo.FNewFileName;
-    TrySetChanges(lFName);
-end;
-
 procedure TMonitoring.InitTimer;
 begin
     FTimer := TTimer.Create(nil);
@@ -208,6 +196,18 @@ end;
 procedure TMonitoring.StartTimer;
 begin
     FTimer.Enabled := True;
+end;
+
+{$REGION 'WINDOWS'}
+{$IFDEF MSWINDOWS}
+procedure TMonitoring.InfoCallback(pInfo: TInfoCallback);
+var
+    lFName : string;
+begin
+    if pInfo.FAction <> FILE_ACTION_MODIFIED then
+        exit;
+    lFName := pInfo.FDrive + pInfo.FNewFileName;
+    TrySetChanges(lFName);
 end;
 
 procedure TMonitoring.StartWatch(pName: string);
